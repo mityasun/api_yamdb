@@ -1,33 +1,31 @@
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
+from rest_framework.validators import UniqueValidator
 
-from reviews.models import Comment, Review
+from reviews.models import User
 
 
-class ReviewSerialiser(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        slug_field='username'
+class RegistrationSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        validators=[UniqueValidator(queryset=User.objects.all())],
+        required=True,
     )
-    title = serializers.PrimaryKeyRelatedField(read_only=True)
+    email = serializers.EmailField(
+        validators=[UniqueValidator(queryset=User.objects.all())],
+        required=True,
+    )
 
-    class Meta:
-        model = Review
-        fields = '__all__'
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=('author', 'title')
+    def validate_username(self, username):
+        if username == 'me':
+            raise serializers.ValidationError(
+                'Никнейм "me" нельзя регистрировать!'
             )
-        ]
-
-
-class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        slug_field='username'
-    )
-    title = serializers.PrimaryKeyRelatedField(read_only=True)
-    review = serializers.PrimaryKeyRelatedField(read_only=True)
+        return username
 
     class Meta:
-        model = Comment
+        model = User
         fields = '__all__'
+
+
+class TokenSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    confirmation_code = serializers.CharField()

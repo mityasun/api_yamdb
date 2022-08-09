@@ -16,7 +16,6 @@ class Genre(models.Model):
     pass
 
 
-# TODO models.delete = check how to delete related things
 class Review(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='reviews'

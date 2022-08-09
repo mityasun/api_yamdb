@@ -19,16 +19,29 @@ class Genre(models.Model):
 # TODO models.delete = check how to delete related things
 class Review(models.Model):
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='reviews'
+        User, on_delete=models.CASCADE, related_name='reviews',
     )
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE, related_name='reviews'
     )
-    text = models.TextField()
+    text = models.TextField(verbose_name='Текст отзыва')
     score = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(10)]
+        'Оценка', validators=[MinValueValidator(1), MaxValueValidator(10)]
     )
-    pub_date = models.DateTimeField()
+    pub_date = models.DateTimeField(verbose_name='Дата публикации', auto_now_add=True)
+
+    def __str__(self) -> str:
+        return self.text
+
+    class Meta:
+        verbose_name = 'отзыв'
+        verbose_name_plural = 'отзывы'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'title'],
+                name='unique_review'
+            )
+        ]
 
 
 class Comment(models.Model):
@@ -41,5 +54,12 @@ class Comment(models.Model):
     review = models.ForeignKey(
         Review, on_delete=models.CASCADE, related_name='comments'
     )
-    text = models.TextField()
-    pub_date = models.DateTimeField()
+    text = models.TextField(verbose_name='Текст комментария')
+    pub_date = models.DateTimeField(verbose_name='Дата публикации', auto_now_add=True)
+
+    def __str__(self) -> str:
+        return self.text
+
+    class Meta:
+        verbose_name = 'комментарий'
+        verbose_name_plural = 'комментарии'

@@ -1,5 +1,7 @@
 from django.db import models
 
+class Review(models.Model):
+    pass
 
 class Category(models.Model):
     name = models.CharField(max_length=256)
@@ -23,6 +25,7 @@ class Genre(models.Model):
         verbose_name_plural = "Жанры"
 
 
+
 class Title(models.Model):
     name = models.CharField(max_length=256)
     year = models.IntegerField()
@@ -37,10 +40,18 @@ class Title(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         related_name='category')
-    rating = models.IntegerField()
+    #rating = models.IntegerField()
 
     def __str__(self):
         return self.name
 
     class Meta:
         verbose_name_plural = "Произведения"
+
+class GenreTitle(models.Model):
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE)
+    genre = models.ForeignKey(
+        Genre,
+        on_delete=models.CASCADE)

@@ -38,13 +38,15 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
+    """Сериализатор регистрации User"""
+
     username = serializers.CharField(
         validators=[UniqueValidator(queryset=User.objects.all())],
-        required=True,
+        required=True
     )
     email = serializers.EmailField(
         validators=[UniqueValidator(queryset=User.objects.all())],
-        required=True,
+        required=True
     )
 
     def validate_username(self, username):
@@ -60,8 +62,34 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 class TokenSerializer(serializers.Serializer):
+    """Сериализатор токена"""
+
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
+
+
+class UserSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        validators=[UniqueValidator(queryset=User.objects.all())],
+        required=True
+    )
+    email = serializers.EmailField(
+        validators=[UniqueValidator(queryset=User.objects.all())],
+        required=True
+    )
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
+
+
+class UserEditSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
+        read_only_fields = ['role']
 
 
 class CategorySerializer(serializers.ModelSerializer):

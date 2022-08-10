@@ -1,12 +1,11 @@
+import datetime as dt
+
+from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from reviews.models import User
-from rest_framework import serializers
-from rest_framework.relations import SlugRelatedField
-from django.db.models import Avg
 from reviews.models import Category, Genre, GenreTitle, Title, Review
-import datetime as dt
+from reviews.models import User
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -38,9 +37,11 @@ class TokenSerializer(serializers.Serializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     """Сериализатор для модели Category"""
-    # req = True
 
-    slug = serializers.SlugRelatedField(queryset=Category.objects.all(), slug_field='slug')
+    slug = serializers.SlugRelatedField(
+        queryset=Category.objects.all(), slug_field='slug'
+    )
+
     class Meta:
         fields = ('name', 'slug',)
         model = Category
@@ -48,7 +49,6 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class GenreSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Genre"""
-    #slug = serializers.SlugRelatedField(queryset=Genre.objects.all(), slug_field='slug')
 
     class Meta:
         fields = ('name', 'slug',)
@@ -60,10 +60,11 @@ class TitleSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True)
     category = CategorySerializer(many=False)
     rating = serializers.SerializerMethodField()
-    # КАК ВЛОЖИТЬ 1 ОБЪЕКТ В ЗАПРОС?  КАТЕГОРИ
 
     class Meta:
-        fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category')
+        fields = (
+            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
+        )
         model = Title
         read_only_fields = ('id', 'rating',)
 
@@ -75,8 +76,6 @@ class TitleSerializer(serializers.ModelSerializer):
             current_genre = Genre.objects.get(**genre)
             GenreTitle.objects.create(genre=current_genre, title=title)
         return title
-
-    # def update
 
     def get_rating(self, obj):
         return Review.objects.filter(title=obj).aggregate(Avg('score'))

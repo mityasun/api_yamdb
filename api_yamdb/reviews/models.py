@@ -39,13 +39,13 @@ class Title(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         related_name='category')
-    #rating = models.IntegerField()
 
     def __str__(self):
         return self.name
 
     class Meta:
         verbose_name_plural = "Произведения"
+
 
 class GenreTitle(models.Model):
     title = models.ForeignKey(
@@ -54,3 +54,7 @@ class GenreTitle(models.Model):
     genre = models.ForeignKey(
         Genre,
         on_delete=models.CASCADE)
+
+
+class Review(models.Model):
+    pass

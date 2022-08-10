@@ -23,11 +23,11 @@ class Review(models.Model):
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE, related_name='reviews'
     )
-    text = models.TextField(verbose_name='Текст отзыва')
+    text = models.TextField('Текст отзыва')
     score = models.IntegerField(
         'Оценка', validators=[MinValueValidator(1), MaxValueValidator(10)]
     )
-    pub_date = models.DateTimeField(verbose_name='Дата публикации', auto_now_add=True)
+    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
     def __str__(self) -> str:
         return self.text
@@ -53,8 +53,8 @@ class Comment(models.Model):
     review = models.ForeignKey(
         Review, on_delete=models.CASCADE, related_name='comments'
     )
-    text = models.TextField(verbose_name='Текст комментария')
-    pub_date = models.DateTimeField(verbose_name='Дата публикации', auto_now_add=True)
+    text = models.TextField('Текст комментария')
+    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
     def __str__(self) -> str:
         return self.text

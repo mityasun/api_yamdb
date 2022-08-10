@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets
 
-from reviews.models import Comment, Review, Title
+from reviews.models import Title
 from .serializers import CommentSerializer, ReviewSerialiser
 
 
@@ -26,4 +26,3 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-

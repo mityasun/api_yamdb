@@ -1,14 +1,14 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import mixins, viewsets, status
-from rest_framework.decorators import action
+from rest_framework import status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
 from reviews.models import Category, Genre, Title
+from reviews.models import Title
 from users.models import User
 from .serializers import (RegistrationSerializer, TokenSerializer,
                           CategorySerializer, GenreSerializer, TitleSerializer)
@@ -53,6 +53,8 @@ class TitleViewSet(viewsets.ModelViewSet):
         title = self.get_object(slug)
         title.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+from .serializers import (RegistrationSerializer, TokenSerializer,
+                          CommentSerializer, ReviewSerialiser)
 
 
 @api_view(['POST'])
@@ -89,3 +91,26 @@ def get_token(request):
         return Response({'token': str(token)}, status=status.HTTP_200_OK)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerialiser
+
+    def get_title(self):
+        title_id = self.kwargs.get('title_id')
+        title = get_object_or_404(Title, id=title_id)
+        return title
+
+    def get_queryset(self):
+        title = self.get_title()
+        new_queryset = title.reviews.all()
+        return new_queryset
+
+    def perform_create(self, serializer):
+        title = self.get_title()
+        serializer.save(title=title, author=self.request.user)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    pass

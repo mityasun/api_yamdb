@@ -14,9 +14,9 @@ class GenreAdmin(admin.ModelAdmin):
 
 class TitleAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'name', 'year', 'rating', 'genre', 'category', 'description',)
+        'id', 'name', 'year',  'genre', 'category', 'description',) #'rating',
     search_fields = ('name', 'description')
-    list_filter = ('year', 'rating', 'category', 'genre')
+    list_filter = ('year',  'category', 'genre') #'rating',
     empty_value_display = '-не указано-'
 
 

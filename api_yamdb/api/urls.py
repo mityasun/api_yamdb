@@ -4,9 +4,8 @@ from rest_framework.routers import DefaultRouter
 
 from .views import (CategoryViewSet, CommentViewSet, GenreViewSet,
                     ReviewViewSet, TitleViewSet, get_token,
-                    UserViewSet, register_user)
-                    ReviewViewSet, TitleViewSet, register_user, get_token,
-                    APIGenreDelete, APICategoryDelete)
+                    UserViewSet, register_user, APIGenreDelete,
+                    APICategoryDelete)
 
 router_v1 = DefaultRouter()
 router_v1.register(r'users', UserViewSet, basename='users')
@@ -22,8 +21,8 @@ router_v1.register(
 
 urlpatterns = [
     path('v1/', include(router_v1.urls)),
-    re_path(r'^v1/genres/(?P<slug>[-a-zA-Z0-9_]+)/$', APIGenreDelete.as_view(), name='genre_destroy' ),
-    re_path(r'^v1/categories/(?P<slug>[-a-zA-Z0-9_]+)/$', APICategoryDelete.as_view(), name='category_destroy' ),
+    re_path(r'^v1/genres/(?P<slug>[-a-zA-Z0-9_]+)/$', APIGenreDelete.as_view(), name='genre_destroy'),
+    re_path(r'^v1/categories/(?P<slug>[-a-zA-Z0-9_]+)/$', APICategoryDelete.as_view(), name='category_destroy'),
     path('v1/auth/signup/', register_user, name='register_user'),
     path('v1/auth/token/', get_token, name='token'),
     path(

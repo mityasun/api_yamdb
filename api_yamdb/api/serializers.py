@@ -119,16 +119,15 @@ class GenreSerializer(serializers.ModelSerializer):
     def __str__(self):
         return self.name 
 
+
 class TitleSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Title"""
 
     class GenSer(GenreSerializer):
         name = StringRelatedField(read_only=True)
-        name = StringRelatedField(read_only=True)
-        
-        
+
     class CatSer(CategorySerializer):
-       name = StringRelatedField(read_only=True)
+        name = StringRelatedField(read_only=True)
 
     genre = GenSer(many=True)
     category = CatSer(many=False)

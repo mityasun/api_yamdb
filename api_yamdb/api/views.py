@@ -1,8 +1,7 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets, mixins, filters
+from rest_framework import status, viewsets, mixins
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -17,28 +16,47 @@ from .serializers import (RegistrationSerializer, TokenSerializer,
                           ReviewSerialiser, CommentSerializer, UserSerializer,
                           UserEditSerializer)
 
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from django_filters.rest_framework import DjangoFilterBackend
+
+
 
 class CategoryViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
-                      mixins.DestroyModelMixin, viewsets.GenericViewSet):
+                      viewsets.GenericViewSet):
     """Вьюсет для модели Category"""
 
+    filter_backends = (filters.SearchFilter,)
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
+    search_fields = ('name',)
 
-    @action(detail=True, methods=['delete'])
+class APICategoryDelete(APIView):
+    """Реализация метода DELETE для модели Category"""
+
+    def get(self, request, slug):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
     def delete(self, request, slug):
-        title = self.get_object(slug)
-        title.delete()
+        category = Category.objects.get(slug=slug)
+        category.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                   viewsets.GenericViewSet):
     """Вьюсет для модели Genre"""
 
+    filter_backends = (filters.SearchFilter,)
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
+    search_fields = ('name',)
 
-    def retrieve(self, request, *args, **kwargs):
+
+class APIGenreDelete(APIView):
+    """Реализация метода DELETE для модели Genre"""
+
+    def get(self, request, slug):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def delete(self, request, slug):
@@ -52,11 +70,13 @@ class TitleViewSet(viewsets.ModelViewSet):
 
     serializer_class = TitleSerializer
     queryset = Title.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('name', 'year', 'category', 'genre',)
 
-    def delete(self, request, slug):
-        title = self.get_object(slug)
-        title.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def perform_create(self, serializer):
+        category = Category.objects.get(slug=self.serializer.get('category'))
+        #ganre = Genre.objects.filter(slug=self.)
+        serializer.save(category=category)
 
 
 @api_view(['POST'])

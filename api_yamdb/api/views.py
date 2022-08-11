@@ -140,12 +140,11 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(
         methods=['get', 'patch'],
-        detail=False,
-        url_path='me',
+        detail=False, url_path='me',
         permission_classes=[IsAuthenticated],
         serializer_class=UserEditSerializer,
     )
-    def edit_user(self, request):
+    def get_edit_user(self, request):
         user = request.user
         if request.method == 'GET':
             serializer = self.get_serializer(user)

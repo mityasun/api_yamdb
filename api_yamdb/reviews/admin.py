@@ -12,8 +12,10 @@ class GenreAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'slug',)
     search_fields = ('name',)
 
+
 class GenreTitleInline(admin.TabularInline):
     model = Title.genre.through
+
 
 class TitleAdmin(admin.ModelAdmin):
     list_display = (

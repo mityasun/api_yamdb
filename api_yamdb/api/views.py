@@ -85,16 +85,27 @@ def register_user(request):
     serializer.is_valid(raise_exception=True)
     serializer.save()
     user = get_object_or_404(
-        User, username=serializer.validated_data['username']
+        User, username=serializer.data['username']
     )
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
         subject='Регистрация в проекте YaMDb.',
         message=f'Ваш код подтверждения: {confirmation_code}',
         from_email='info@yamdb.ru',
-        recipient_list=[user.email]
+        recipient_list=[serializer.validated_data['email']]
     )
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+def get_tokens_for_user(user):
+    """Генерация JWT токена"""
+
+    refresh = RefreshToken.for_user(user)
+
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
 
 
 @api_view(['POST'])
@@ -110,9 +121,9 @@ def get_token(request):
     if default_token_generator.check_token(
             user, serializer.validated_data['confirmation_code']
     ):
-        token = RefreshToken.for_user(user=user)
+        token = get_tokens_for_user(user)
         return Response(
-            {'access': str(token.access_token)}, status=status.HTTP_200_OK
+            {'token': token['access']}, status=status.HTTP_200_OK
         )
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

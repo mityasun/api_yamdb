@@ -2,8 +2,9 @@ import datetime as dt
 
 from django.db.models import Avg
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 from rest_framework.serializers import StringRelatedField
+from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
+
 from reviews.models import Category, Genre, GenreTitle, Title, Review, Comment
 from users.models import User
 
@@ -51,23 +52,23 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def validate_username(self, username):
         if username == 'me':
-            raise serializers.ValidationError(
-                'Никнейм "me" нельзя регистрировать!'
-            )
+            raise serializers.ValidationError('Ник "me" нельзя регистрировать!')
         return username
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'confirmation_code')
+        fields = ['username', 'email']
 
 
 class TokenSerializer(serializers.ModelSerializer):
     """Сериализатор токена"""
 
+    username = serializers.CharField(required=True)
+    confirmation_code = serializers.CharField(required=True)
+
     class Meta:
         model = User
-        fields = ('username', 'confirmation_code')
-        read_only_fields = ('username', 'confirmation_code')
+        fields = ['username', 'confirmation_code']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -84,8 +85,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name',
-                  'last_name', 'bio', 'role')
+        fields = ['username', 'email', 'first_name',
+                  'last_name', 'bio', 'role']
 
 
 class UserEditSerializer(serializers.ModelSerializer):
@@ -93,8 +94,7 @@ class UserEditSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name',
-                  'last_name', 'bio', 'role')
+        fields = ['username', 'email', 'first_name', 'last_name', 'bio', 'role']
         read_only_fields = ['role']
 
 

@@ -58,17 +58,21 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ('username', 'email', 'confirmation_code')
 
 
-class TokenSerializer(serializers.Serializer):
+class TokenSerializer(serializers.ModelSerializer):
     """Сериализатор токена"""
 
-    username = serializers.CharField()
-    confirmation_code = serializers.CharField()
+    class Meta:
+        model = User
+        fields = ('username', 'confirmation_code')
+        read_only_fields = ('username', 'confirmation_code')
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Сериализатор модели User"""
+
     username = serializers.CharField(
         validators=[UniqueValidator(queryset=User.objects.all())],
         required=True
@@ -85,6 +89,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserEditSerializer(serializers.ModelSerializer):
+    """Сериализатор модели User для get и patch"""
+
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name',

@@ -2,13 +2,11 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets, mixins, filters, permissions, \
-    generics
+from rest_framework import status, viewsets, mixins, filters
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Category, Genre, Title
@@ -64,10 +62,14 @@ class TitleViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_user(request):
+    """Функция регистрации user, генерации и отправки кода на почту"""
+
     serializer = RegistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    user = request.user
+    user = get_object_or_404(
+        User, username=serializer.validated_data['username']
+    )
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
         subject='Регистрация в проекте YaMDb.',
@@ -81,17 +83,20 @@ def register_user(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def get_token(request):
+    """Функция выдачи токена"""
+
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    user = request.user
+    user = get_object_or_404(
+        User, username=serializer.validated_data['username']
+    )
     if default_token_generator.check_token(
             user, serializer.validated_data['confirmation_code']
     ):
-        token = RefreshToken.for_user(user)
+        token = RefreshToken.for_user(user=user)
         return Response(
             {'access': str(token.access_token)}, status=status.HTTP_200_OK
         )
-
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

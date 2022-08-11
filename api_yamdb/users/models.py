@@ -18,6 +18,9 @@ class User(AbstractUser):
     password = models.CharField('Пароль', max_length=15, null=True, blank=True)
     role = models.CharField('Роль', max_length=30, choices=ROLES, default=USER)
     bio = models.TextField('Об авторе', max_length=500, null=True, blank=True)
+    confirmation_code = models.CharField(
+        'Код подтверждения', max_length=50, blank=True
+    )
 
     @property
     def is_moderator(self):

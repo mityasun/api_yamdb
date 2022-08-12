@@ -16,8 +16,8 @@ from .permissions import IsAdmin
 from .serializers import (RegistrationSerializer, TokenSerializer,
                           CategorySerializer, GenreSerializer, TitleSerializer,
                           ReviewSerialiser, CommentSerializer, UserSerializer,
-                          UserEditSerializer)
-
+                          UserEditSerializer,TitlePostSerializer)
+from .permissions import IsAdminModeratorUserOrReadOnly, IsAdminOrReadOnly
 
 class CategoryViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
                       viewsets.GenericViewSet):
@@ -27,10 +27,12 @@ class CategoryViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
     search_fields = ('name',)
-
+    permission_classes = [IsAdminOrReadOnly,]
 
 class APICategoryDelete(APIView):
     """Реализация метода DELETE для модели Category"""
+
+    permission_classes = [IsAdminOrReadOnly,]
 
     def get(self, request, slug):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -49,10 +51,12 @@ class GenreViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
     search_fields = ('name',)
-
+    permission_classes = [IsAdminOrReadOnly,]
 
 class APIGenreDelete(APIView):
     """Реализация метода DELETE для модели Genre"""
+
+    permission_classes = [IsAdminOrReadOnly,]
 
     def get(self, request, slug):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -65,15 +69,24 @@ class APIGenreDelete(APIView):
 
 class TitleViewSet(viewsets.ModelViewSet):
     """Вьюсет для модели Title"""
-
+     
+    ACTIONS = ['create', 'update', 'partial_update']
     serializer_class = TitleSerializer
     queryset = Title.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name', 'year', 'category', 'genre',)
+    permission_classes = [IsAdminModeratorUserOrReadOnly,]
 
-    def perform_create(self, serializer):
-        category = Category.objects.get(slug=self.serializer.get('category'))
-        serializer.save(category=category)
+    def get_serializer_class(self):
+        if self.action in self.ACTIONS:
+            return TitlePostSerializer
+        return TitleSerializer 
+    
+    def perform_destroy(self, serializer):
+        id = self.kwargs.get('id')
+        title = Title.objects.get(id=id)
+        title.delete()
+   
 
 
 @api_view(['POST'])

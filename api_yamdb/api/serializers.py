@@ -5,6 +5,8 @@ from rest_framework import serializers
 from rest_framework.serializers import StringRelatedField
 from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 
+from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
+from rest_framework.serializers import StringRelatedField, SlugRelatedField
 from reviews.models import Category, Genre, GenreTitle, Title, Review, Comment
 from users.models import User
 
@@ -104,9 +106,6 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('name', 'slug',)
         model = Category
-    
-    def __str__(self):
-        return self.name
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -116,42 +115,29 @@ class GenreSerializer(serializers.ModelSerializer):
         fields = ('name', 'slug',)
         model = Genre
 
-    def __str__(self):
-        return self.name 
-
 
 class TitleSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Title"""
 
-    class GenSer(GenreSerializer):
-        name = StringRelatedField(read_only=True)
-
-    class CatSer(CategorySerializer):
-        name = StringRelatedField(read_only=True)
-
-    genre = GenSer(many=True)
-    category = CatSer(many=False)
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
     rating = serializers.SerializerMethodField(required=False)
     description = serializers.CharField(required=False)
     
     class Meta:
         fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category')
         model = Title
-        read_only_fields = ('id', 'rating',)
- 
-    def create(self, validated_data):
-        genre = validated_data.pop('genre')
-        #category = validated_data.pop('category')
-        title = Title.objects.create(**validated_data)
-        for i in genre:
-            current_genre = Genre.objects.get(slug=genre)
-            GenreTitle.objects.create(genre=current_genre, title=title)
-        return title
-
-    # def update 
+        read_only_fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category')
 
     def get_rating(self, obj):
         return Review.objects.filter(title=obj.id).aggregate(Avg('score'))['score__avg']
+
+
+class TitlePostSerializer(TitleSerializer):
+
+    genre = serializers.SlugRelatedField(many=True, slug_field='slug', queryset=Genre.objects.all())
+    category = serializers.SlugRelatedField(queryset=Category.objects.all(), slug_field='slug')
+
 
     def validate_year(self, value):
         year = dt.date.today().year

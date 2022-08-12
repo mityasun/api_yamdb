@@ -12,9 +12,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
-from .permissions import IsAdmin, IsAdminModeratorAuthorOrReadOnly
-from .permissions import IsAdmin
-from .permissions import IsAdminModeratorUserOrReadOnly, IsAdminOrReadOnly
+from .permissions import (IsAdminModeratorAuthorOrReadOnly, IsAdminOrReadOnly,
+                          IsAdmin)
 from .serializers import (RegistrationSerializer, TokenSerializer,
                           CategorySerializer, GenreSerializer, TitleSerializer,
                           ReviewSerialiser, CommentSerializer, UserSerializer,
@@ -41,7 +40,8 @@ class APICategoryDelete(APIView):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def delete(self, request, slug):
-        category = Category.objects.get(slug=slug)
+        # переписано category = Category.objects.get(slug=slug)
+        category = get_object_or_404(Category, slug=slug)
         category.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -66,7 +66,8 @@ class APIGenreDelete(APIView):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def delete(self, request, slug):
-        genre = Genre.objects.get(slug=slug)
+        # переписано genre = Genre.objects.get(slug=slug)
+        genre = get_object_or_404(Genre, slug=slug)
         genre.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -78,8 +79,8 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     queryset = Title.objects.all()
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('name', 'year', 'category', 'genre',)
-    permission_classes = [IsAdminModeratorUserOrReadOnly]
+    filterset_fields = ('name', 'year', 'category', 'genre')
+    permission_classes = [IsAdminOrReadOnly]
 
     def get_serializer_class(self):
         if self.action in self.ACTIONS:
@@ -87,8 +88,9 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleSerializer
 
     def perform_destroy(self, serializer):
-        title_id = self.kwargs.get('id')
-        title = Title.objects.get(id=title_id)
+        # переписано title_id = self.kwargs.get('id')
+        # переписано title = Title.objects.get(id=title_id)
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         title.delete()
 
 
@@ -113,17 +115,6 @@ def register_user(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-def get_tokens_for_user(user):
-    """Генерация JWT токена"""
-
-    refresh = RefreshToken.for_user(user)
-
-    return {
-        'refresh': str(refresh),
-        'access': str(refresh.access_token),
-    }
-
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def get_token(request):
@@ -137,9 +128,9 @@ def get_token(request):
     if default_token_generator.check_token(
             user, serializer.validated_data['confirmation_code']
     ):
-        token = get_tokens_for_user(user)
+        token = RefreshToken.for_user(user)
         return Response(
-            {'token': token['access']}, status=status.HTTP_200_OK
+            {'access': str(token.access_token)}, status=status.HTTP_200_OK
         )
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -151,7 +142,6 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [IsAdmin]
     pagination_class = LimitOffsetPagination
-    search_fields = ['username']
     lookup_field = 'username'
 
     @action(
@@ -176,45 +166,60 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    """Вьюсет для модели Review"""
+
     serializer_class = ReviewSerialiser
     permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
 
     def get_title(self):
-        title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, id=title_id)
-        return title
+        # переписано title_id = self.kwargs.get('title_id')
+        # переписано title = get_object_or_404(Title, id=title_id)
+        return get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        # переписано return title
 
     def get_queryset(self):
-        title = self.get_title()
-        new_queryset = title.reviews.all()
-        return new_queryset
+        # переписано title = self.get_title()
+        # переписано new_queryset = title.reviews.all()
+        return self.get_title().reviews.all()
+        # переписано return new_queryset
 
     def perform_create(self, serializer):
-        title = self.get_title()
-        serializer.save(title=title, author=self.request.user)
+        # переписано title = self.get_title()
+        # переписано serializer.save(title=title, author=self.request.user)
+        serializer.save(title=self.get_title(), author=self.request.user)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
+    """Вьюсет для модели Comment"""
+
     serializer_class = CommentSerializer
     permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
 
     def get_title(self):
-        title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, id=title_id)
-        return title
+        # переписано title_id = self.kwargs.get('title_id')
+        # переписано title = get_object_or_404(Title, id=title_id)
+        return get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        # переписано return title
 
     def get_review(self):
-        title = self.get_title()
+        # переписано  title = self.get_title()
         review_id = self.kwargs.get('review_id')
-        review = get_object_or_404(Review, title=title, id=review_id)
-        return review
+        # переписано review = get_object_or_404(Review, title=self.get_title(), id=review_id)
+        return get_object_or_404(Review, title=self.get_title(), id=review_id)
+        # переписано  return review
 
     def get_queryset(self):
-        review = self.get_review()
-        new_queryset = review.comments.all()
-        return new_queryset
+        # переписано  review = self.get_review()
+        # переписано  new_queryset = review.comments.all()
+        return self.get_review().comments.all()
+        # переписано  return new_queryset
 
     def perform_create(self, serializer):
-        title = self.get_title()
-        review = self.get_review()
-        serializer.save(title=title, review=review, author=self.request.user)
+        # переписано title = self.get_title()
+        # переписано review = self.get_review()
+        # переписано serializer.save(title=title, review=review, author=self.request.user)
+        serializer.save(
+            title=self.get_title(),
+            review=self.get_review(),
+            author=self.request.user
+        )

@@ -18,12 +18,12 @@ router_v1.register(
 router_v1.register(
     r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
     CommentViewSet, basename='comments')
-
+# я тут упростил regex по подсказкам пайчарма
 urlpatterns = [
     path('v1/', include(router_v1.urls)),
-    re_path(r'^v1/genres/(?P<slug>[-a-zA-Z0-9_]+)/$',
+    re_path(r'^v1/genres/(?P<slug>[-a-zA-Z\d_]+)/$',
             APIGenreDelete.as_view(), name='genre_destroy'),
-    re_path(r'^v1/categories/(?P<slug>[-a-zA-Z0-9_]+)/$',
+    re_path(r'^v1/categories/(?P<slug>[-a-zA-Z\d_]+)/$',
             APICategoryDelete.as_view(), name='category_destroy'),
     path('v1/auth/signup/', register_user, name='register_user'),
     path('v1/auth/token/', get_token, name='token'),
@@ -33,4 +33,3 @@ urlpatterns = [
         name='redoc'
     ),
 ]
-

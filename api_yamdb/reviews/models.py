@@ -12,6 +12,7 @@ class Category(models.Model):
         return self.name
 
     class Meta:
+        ordering = ['-id']
         verbose_name = 'категория'
         verbose_name_plural = 'категории'
 
@@ -24,6 +25,7 @@ class Genre(models.Model):
         return self.name
 
     class Meta:
+        ordering = ['-id']
         verbose_name = 'жанр'
         verbose_name_plural = 'жанры'
 
@@ -33,7 +35,7 @@ class Title(models.Model):
     year = models.IntegerField('Год')
     description = models.TextField('Описание', null=True)
     genre = models.ManyToManyField(
-        Genre, through='GenreTitle', related_name='genre'
+        Genre, through='GenreTitle'
     )
     category = models.ForeignKey(
         Category,
@@ -47,6 +49,7 @@ class Title(models.Model):
         return self.name
 
     class Meta:
+        ordering = ['-id']
         verbose_name = 'произведение'
         verbose_name_plural = 'произведения'
 
@@ -86,6 +89,7 @@ class Review(models.Model):
         return self.text
 
     class Meta:
+        ordering = ['-id']
         verbose_name = 'отзыв'
         verbose_name_plural = 'отзывы'
         constraints = [

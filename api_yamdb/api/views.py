@@ -13,11 +13,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from reviews.models import Category, Genre, Title
 from users.models import User
 from .permissions import IsAdmin
+from .permissions import IsAdminModeratorUserOrReadOnly, IsAdminOrReadOnly
 from .serializers import (RegistrationSerializer, TokenSerializer,
                           CategorySerializer, GenreSerializer, TitleSerializer,
                           ReviewSerialiser, CommentSerializer, UserSerializer,
-                          UserEditSerializer,TitlePostSerializer)
-from .permissions import IsAdminModeratorUserOrReadOnly, IsAdminOrReadOnly
+                          UserEditSerializer, TitlePostSerializer)
+
 
 class CategoryViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
                       viewsets.GenericViewSet):
@@ -27,12 +28,13 @@ class CategoryViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
     search_fields = ('name',)
-    permission_classes = [IsAdminOrReadOnly,]
+    permission_classes = [IsAdminOrReadOnly]
+
 
 class APICategoryDelete(APIView):
     """Реализация метода DELETE для модели Category"""
 
-    permission_classes = [IsAdminOrReadOnly,]
+    permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request, slug):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -51,12 +53,13 @@ class GenreViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
     search_fields = ('name',)
-    permission_classes = [IsAdminOrReadOnly,]
+    permission_classes = [IsAdminOrReadOnly]
+
 
 class APIGenreDelete(APIView):
     """Реализация метода DELETE для модели Genre"""
 
-    permission_classes = [IsAdminOrReadOnly,]
+    permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request, slug):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -75,7 +78,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name', 'year', 'category', 'genre',)
-    permission_classes = [IsAdminModeratorUserOrReadOnly,]
+    permission_classes = [IsAdminModeratorUserOrReadOnly]
 
     def get_serializer_class(self):
         if self.action in self.ACTIONS:
@@ -83,11 +86,10 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleSerializer 
     
     def perform_destroy(self, serializer):
-        id = self.kwargs.get('id')
-        title = Title.objects.get(id=id)
+        title_id = self.kwargs.get('id')
+        title = Title.objects.get(id=title_id)
         title.delete()
    
-
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

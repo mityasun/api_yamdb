@@ -38,13 +38,15 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
+    """Сериализатор регистрации User"""
+
     username = serializers.CharField(
         validators=[UniqueValidator(queryset=User.objects.all())],
-        required=True,
+        required=True
     )
     email = serializers.EmailField(
         validators=[UniqueValidator(queryset=User.objects.all())],
-        required=True,
+        required=True
     )
 
     def validate_username(self, username):
@@ -56,12 +58,44 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ('username', 'email', 'confirmation_code')
 
 
-class TokenSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    confirmation_code = serializers.CharField()
+class TokenSerializer(serializers.ModelSerializer):
+    """Сериализатор токена"""
+
+    class Meta:
+        model = User
+        fields = ('username', 'confirmation_code')
+        read_only_fields = ('username', 'confirmation_code')
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """Сериализатор модели User"""
+
+    username = serializers.CharField(
+        validators=[UniqueValidator(queryset=User.objects.all())],
+        required=True
+    )
+    email = serializers.EmailField(
+        validators=[UniqueValidator(queryset=User.objects.all())],
+        required=True
+    )
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
+
+
+class UserEditSerializer(serializers.ModelSerializer):
+    """Сериализатор модели User для get и patch"""
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
+        read_only_fields = ['role']
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -85,16 +119,15 @@ class GenreSerializer(serializers.ModelSerializer):
     def __str__(self):
         return self.name 
 
+
 class TitleSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Title"""
 
     class GenSer(GenreSerializer):
         name = StringRelatedField(read_only=True)
-        name = StringRelatedField(read_only=True)
-        
-        
+
     class CatSer(CategorySerializer):
-       name = StringRelatedField(read_only=True)
+        name = StringRelatedField(read_only=True)
 
     genre = GenSer(many=True)
     category = CatSer(many=False)

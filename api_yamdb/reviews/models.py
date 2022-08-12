@@ -26,30 +26,23 @@ class Genre(models.Model):
         verbose_name_plural = "Жанры"
 
 
-
 class Title(models.Model):
     name = models.CharField(max_length=256)
     year = models.IntegerField()
     description = models.TextField(null=True)
-    genre =  models.ManyToManyField(Genre, through='GenreTitle')
-    #,on_delete=models.SET_NULL
-       # null=True,)
-    #models.ForeignKey(
-       # Genre,
-      #  
-        #related_name='genre')
+    genre = models.ManyToManyField(Genre, through='GenreTitle')
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
         null=True,
         related_name='category')
-    #rating = models.IntegerField()
 
     def __str__(self):
         return self.name
 
     class Meta:
         verbose_name_plural = "Произведения"
+
 
 class GenreTitle(models.Model):
     title = models.ForeignKey(
@@ -61,6 +54,7 @@ class GenreTitle(models.Model):
 
     def __str__(self):
         return f'{self.title} {self.genre}' 
+
 
 class Review(models.Model):
     author = models.ForeignKey(
@@ -89,6 +83,7 @@ class Review(models.Model):
                 name='unique_review'
             )
         ]
+
 
 class Comment(models.Model):
     author = models.ForeignKey(

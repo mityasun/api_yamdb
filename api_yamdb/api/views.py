@@ -12,9 +12,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
-from .permissions import IsAdmin, IsAdminModeratorAuthorOrReadOnly
-from .permissions import IsAdmin
-from .permissions import IsAdminModeratorUserOrReadOnly, IsAdminOrReadOnly
+from .permissions import (IsAdminModeratorAuthorOrReadOnly, IsAdminOrReadOnly,
+                          IsAdmin)
 from .serializers import (RegistrationSerializer, TokenSerializer,
                           CategorySerializer, GenreSerializer, TitleSerializer,
                           ReviewSerialiser, CommentSerializer, UserSerializer,
@@ -78,8 +77,8 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     queryset = Title.objects.all()
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('name', 'year', 'category', 'genre',)
-    permission_classes = [IsAdminModeratorUserOrReadOnly]
+    filterset_fields = ('name', 'year', 'category', 'genre')
+    permission_classes = [IsAdminOrReadOnly]
 
     def get_serializer_class(self):
         if self.action in self.ACTIONS:

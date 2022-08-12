@@ -33,7 +33,7 @@ class Title(models.Model):
     year = models.IntegerField('Год')
     description = models.TextField('Описание', null=True)
     genre = models.ManyToManyField(
-        Genre, through='GenreTitle', related_name='genre'
+        Genre, through='GenreTitle'
     )
     category = models.ForeignKey(
         Category,

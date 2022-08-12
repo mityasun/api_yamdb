@@ -15,18 +15,9 @@ from users.models import User
 from .permissions import IsAdmin
 from .serializers import (RegistrationSerializer, TokenSerializer,
                           CategorySerializer, GenreSerializer, TitleSerializer,
-<<<<<<< HEAD
-                          ReviewSerialiser, CommentSerializer)
-from .permissions import IsAdminOrReadOnly, IsAdminModeratorUserOrReadOnly
-
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from django_filters.rest_framework import DjangoFilterBackend
-=======
                           ReviewSerialiser, CommentSerializer, UserSerializer,
-                          UserEditSerializer)
->>>>>>> aba436b289d95e474d02637a50a748bc159eb65d
-
+                          UserEditSerializer,TitlePostSerializer)
+from .permissions import IsAdminModeratorUserOrReadOnly, IsAdminOrReadOnly
 
 class CategoryViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
                       viewsets.GenericViewSet):
@@ -36,11 +27,12 @@ class CategoryViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
     search_fields = ('name',)
-    #permission_classes = [IsAdminOrReadOnly,]
-
+    permission_classes = [IsAdminOrReadOnly,]
 
 class APICategoryDelete(APIView):
     """Реализация метода DELETE для модели Category"""
+
+    permission_classes = [IsAdminOrReadOnly,]
 
     def get(self, request, slug):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -59,10 +51,12 @@ class GenreViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
     search_fields = ('name',)
-
+    permission_classes = [IsAdminOrReadOnly,]
 
 class APIGenreDelete(APIView):
     """Реализация метода DELETE для модели Genre"""
+
+    permission_classes = [IsAdminOrReadOnly,]
 
     def get(self, request, slug):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -75,21 +69,24 @@ class APIGenreDelete(APIView):
 
 class TitleViewSet(viewsets.ModelViewSet):
     """Вьюсет для модели Title"""
-
+     
+    ACTIONS = ['create', 'update', 'partial_update']
     serializer_class = TitleSerializer
     queryset = Title.objects.all()
     filter_backends = (DjangoFilterBackend,)
-<<<<<<< HEAD
-    filterset_fields = ('name', 'year', 'category', 'genre',) 
-    #permission_classes = [IsAdminModeratorUserOrReadOnly,]
-
-=======
     filterset_fields = ('name', 'year', 'category', 'genre',)
->>>>>>> aba436b289d95e474d02637a50a748bc159eb65d
+    permission_classes = [IsAdminModeratorUserOrReadOnly,]
 
-    def perform_create(self, serializer):
-        category = Category.objects.get(slug=self.serializer.get('category'))
-        serializer.save(category=category)
+    def get_serializer_class(self):
+        if self.action in self.ACTIONS:
+            return TitlePostSerializer
+        return TitleSerializer 
+    
+    def perform_destroy(self, serializer):
+        id = self.kwargs.get('id')
+        title = Title.objects.get(id=id)
+        title.delete()
+   
 
 
 @api_view(['POST'])
@@ -101,16 +98,27 @@ def register_user(request):
     serializer.is_valid(raise_exception=True)
     serializer.save()
     user = get_object_or_404(
-        User, username=serializer.validated_data['username']
+        User, username=serializer.data['username']
     )
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
         subject='Регистрация в проекте YaMDb.',
         message=f'Ваш код подтверждения: {confirmation_code}',
         from_email='info@yamdb.ru',
-        recipient_list=[user.email]
+        recipient_list=[serializer.validated_data['email']]
     )
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+def get_tokens_for_user(user):
+    """Генерация JWT токена"""
+
+    refresh = RefreshToken.for_user(user)
+
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
 
 
 @api_view(['POST'])
@@ -126,9 +134,9 @@ def get_token(request):
     if default_token_generator.check_token(
             user, serializer.validated_data['confirmation_code']
     ):
-        token = RefreshToken.for_user(user=user)
+        token = get_tokens_for_user(user)
         return Response(
-            {'access': str(token.access_token)}, status=status.HTTP_200_OK
+            {'token': token['access']}, status=status.HTTP_200_OK
         )
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -145,12 +153,11 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(
         methods=['get', 'patch'],
-        detail=False,
-        url_path='me',
+        detail=False, url_path='me',
         permission_classes=[IsAuthenticated],
         serializer_class=UserEditSerializer,
     )
-    def edit_user(self, request):
+    def get_edit_user(self, request):
         user = request.user
         if request.method == 'GET':
             serializer = self.get_serializer(user)

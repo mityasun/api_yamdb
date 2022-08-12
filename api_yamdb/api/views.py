@@ -10,14 +10,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from reviews.models import Category, Genre, Title
+from reviews.models import Category, Genre, Review, Title
 from users.models import User
-from .permissions import IsAdmin
+from .permissions import (IsAdminModeratorAuthorOrReadOnly, IsAdminOrReadOnly,
+                          IsAdmin)
 from .serializers import (RegistrationSerializer, TokenSerializer,
                           CategorySerializer, GenreSerializer, TitleSerializer,
                           ReviewSerialiser, CommentSerializer, UserSerializer,
-                          UserEditSerializer,TitlePostSerializer)
-from .permissions import IsAdminModeratorUserOrReadOnly, IsAdminOrReadOnly
+                          UserEditSerializer, TitlePostSerializer)
+
 
 class CategoryViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
                       viewsets.GenericViewSet):
@@ -27,12 +28,13 @@ class CategoryViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
     search_fields = ('name',)
-    permission_classes = [IsAdminOrReadOnly,]
+    permission_classes = [IsAdminOrReadOnly]
+
 
 class APICategoryDelete(APIView):
     """Реализация метода DELETE для модели Category"""
 
-    permission_classes = [IsAdminOrReadOnly,]
+    permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request, slug):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -51,12 +53,13 @@ class GenreViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
     search_fields = ('name',)
-    permission_classes = [IsAdminOrReadOnly,]
+    permission_classes = [IsAdminOrReadOnly]
+
 
 class APIGenreDelete(APIView):
     """Реализация метода DELETE для модели Genre"""
 
-    permission_classes = [IsAdminOrReadOnly,]
+    permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request, slug):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -69,24 +72,23 @@ class APIGenreDelete(APIView):
 
 class TitleViewSet(viewsets.ModelViewSet):
     """Вьюсет для модели Title"""
-     
+
     ACTIONS = ['create', 'update', 'partial_update']
     serializer_class = TitleSerializer
     queryset = Title.objects.all()
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('name', 'year', 'category', 'genre',)
-    permission_classes = [IsAdminModeratorUserOrReadOnly,]
+    filterset_fields = ('name', 'year', 'category', 'genre')
+    permission_classes = [IsAdminOrReadOnly]
 
     def get_serializer_class(self):
         if self.action in self.ACTIONS:
             return TitlePostSerializer
-        return TitleSerializer 
-    
+        return TitleSerializer
+
     def perform_destroy(self, serializer):
         title_id = self.kwargs.get('id')
         title = Title.objects.get(id=title_id)
         title.delete()
-   
 
 
 @api_view(['POST'])
@@ -174,6 +176,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerialiser
+    permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
 
     def get_title(self):
         title_id = self.kwargs.get('title_id')
@@ -192,6 +195,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
+    permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
 
     def get_title(self):
         title_id = self.kwargs.get('title_id')
@@ -199,10 +203,17 @@ class CommentViewSet(viewsets.ModelViewSet):
         return title
 
     def get_review(self):
-        pass
+        title = self.get_title()
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, title=title, id=review_id)
+        return review
 
     def get_queryset(self):
-        pass
+        review = self.get_review()
+        new_queryset = review.comments.all()
+        return new_queryset
 
     def perform_create(self, serializer):
-        pass
+        title = self.get_title()
+        review = self.get_review()
+        serializer.save(title=title, review=review, author=self.request.user)

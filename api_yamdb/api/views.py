@@ -10,9 +10,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from reviews.models import Category, Genre, Title
+from reviews.models import Category, Genre, Review, Title
 from users.models import User
-from .permissions import IsAdmin
+from .permissions import IsAdmin, IsAdminModeratorAuthorOrReadOnly
 from .serializers import (RegistrationSerializer, TokenSerializer,
                           CategorySerializer, GenreSerializer, TitleSerializer,
                           ReviewSerialiser, CommentSerializer, UserSerializer,
@@ -162,6 +162,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerialiser
+    permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
 
     def get_title(self):
         title_id = self.kwargs.get('title_id')
@@ -180,6 +181,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
+    permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
 
     def get_title(self):
         title_id = self.kwargs.get('title_id')
@@ -187,10 +189,17 @@ class CommentViewSet(viewsets.ModelViewSet):
         return title
 
     def get_review(self):
-        pass
+        title = self.get_title()
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, title=title, id=review_id)
+        return review
 
     def get_queryset(self):
-        pass
+        review = self.get_review()
+        new_queryset = review.comments.all()
+        return new_queryset
 
     def perform_create(self, serializer):
-        pass
+        title = self.get_title()
+        review = self.get_review()
+        serializer.save(title=title, review=review, author=self.request.user)

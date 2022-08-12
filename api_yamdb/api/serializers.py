@@ -11,7 +11,7 @@ from users.models import User
 
 class ReviewSerialiser(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        slug_field='username', read_only=True
+        slug_field='username', read_only=True, default=serializers.CurrentUserDefault()
     )
     title = serializers.PrimaryKeyRelatedField(read_only=True)
 
@@ -28,7 +28,7 @@ class ReviewSerialiser(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        slug_field='username', read_only=True
+        slug_field='username', read_only=True, default=serializers.CurrentUserDefault()
     )
     title = serializers.PrimaryKeyRelatedField(read_only=True)
     review = serializers.PrimaryKeyRelatedField(read_only=True)

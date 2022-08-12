@@ -126,8 +126,8 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category')
         model = Title
-        read_only_fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category')
-        
+        read_only_fields = ('id', 'rating',)
+                
     def get_rating(self, obj):
         return Review.objects.filter(title=obj.id).aggregate(Avg('score'))['score__avg']
 

@@ -83,8 +83,8 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleSerializer 
     
     def perform_destroy(self, serializer):
-        id = self.kwargs.get('id')
-        title = Title.objects.get(id=id)
+        title_id = self.kwargs.get('id')
+        title = Title.objects.get(id=title_id)
         title.delete()
    
 

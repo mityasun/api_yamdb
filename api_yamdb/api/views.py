@@ -12,6 +12,7 @@ from users.models import User
 from .serializers import (RegistrationSerializer, TokenSerializer,
                           CategorySerializer, GenreSerializer, TitleSerializer,
                           ReviewSerialiser, CommentSerializer)
+from .permissions import IsAdminOrReadOnly, IsAdminModeratorUserOrReadOnly
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -27,6 +28,7 @@ class CategoryViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
     search_fields = ('name',)
+    #permission_classes = [IsAdminOrReadOnly,]
 
 class APICategoryDelete(APIView): 
     """Реализация метода DELETE для модели Category"""
@@ -69,6 +71,8 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name', 'year', 'category', 'genre',) 
+    #permission_classes = [IsAdminModeratorUserOrReadOnly,]
+
 
     def perform_create(self, serializer):
         category = Category.objects.get(slug=self.serializer.get('category'))

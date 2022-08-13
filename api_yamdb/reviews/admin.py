@@ -19,9 +19,10 @@ class GenreTitleInline(admin.TabularInline):
 
 class TitleAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'name', 'year',   'category', 'description') 
-    search_fields = ('name', 'description')
-    list_filter = ('year',  'category', 'genre')
+        'id', 'name', 'year', 'category', 'description'
+    )
+    search_fields = ('name', 'description',)
+    list_filter = ('year', 'category', 'genre',)
     empty_value_display = '-не указано-'
     inlines = [GenreTitleInline]
 

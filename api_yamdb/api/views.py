@@ -1,28 +1,19 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from django_filters import rest_framework as flt
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets, filters
-from rest_framework.decorators import api_view, permission_classes, action
-from rest_framework import filters, mixins, status, viewsets
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
-from .mixins import ListCreateGenericViewSet
-from .permissions import (IsAdminModeratorAuthorOrReadOnly, IsAdminOrReadOnly,
-                          IsAdmin)
-from .serializers import (RegistrationSerializer, TokenSerializer,
-                          CategorySerializer, GenreSerializer, TitleSerializer,
-                          ReviewSerialiser, CommentSerializer, UserSerializer,
-                          UserEditSerializer, TitlePostSerializer)
-
 from .filters import TitleFilter
+from .mixins import ListCreateGenericViewSet
 from .permissions import (IsAdmin, IsAdminModeratorAuthorOrReadOnly,
                           IsAdminOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
@@ -97,12 +88,6 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.action in self.ACTIONS:
             return TitlePostSerializer
         return TitleSerializer
-
-    def perform_destroy(self, serializer):
-        # переписано title_id = self.kwargs.get('id')
-        # переписано title = Title.objects.get(id=title_id)
-        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
-        title.delete()
 
 
 @api_view(['POST'])

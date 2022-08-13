@@ -1,24 +1,25 @@
-from django_filters import rest_framework as flt
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets, mixins, filters
-from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework import filters, mixins, status, viewsets
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
-from .permissions import (IsAdminModeratorAuthorOrReadOnly, IsAdminOrReadOnly,
-                          IsAdmin)
-from .serializers import (RegistrationSerializer, TokenSerializer,
-                          CategorySerializer, GenreSerializer, TitleSerializer,
-                          ReviewSerialiser, CommentSerializer, UserSerializer,
-                          UserEditSerializer, TitlePostSerializer)
+
+from .filters import TitleFilter
+from .permissions import (IsAdmin, IsAdminModeratorAuthorOrReadOnly,
+                          IsAdminOrReadOnly)
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, RegistrationSerializer,
+                          ReviewSerialiser, TitlePostSerializer,
+                          TitleSerializer, TokenSerializer, UserEditSerializer,
+                          UserSerializer)
 
 
 class CategoryViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
@@ -71,21 +72,11 @@ class APIGenreDelete(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class TitleFilter(flt.FilterSet):
-    name = flt.CharFilter(field_name='name', lookup_expr='icontains')
-    year = flt.NumberFilter(field_name='year')
-    category = flt.CharFilter(field_name='category__slug')
-    genre = flt.CharFilter(field_name='genre__slug')
-
-    class Meta:
-        model = Title
-        fields = ['name', 'year', 'category', 'genre']
-
-
 class TitleViewSet(viewsets.ModelViewSet):
     """Вьюсет для модели Title"""
 
-    ACTIONS = ['create', 'update', 'partial_update']
+    http_method_names = ['get', 'post', 'patch', 'delete']
+    ACTIONS = ['create', 'partial_update']
     serializer_class = TitleSerializer
     queryset = Title.objects.all()
     filter_backends = (DjangoFilterBackend,)
@@ -96,11 +87,6 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.action in self.ACTIONS:
             return TitlePostSerializer
         return TitleSerializer
-
-    def perform_destroy(self, serializer):
-        title_id = self.kwargs.get('id')
-        title = Title.objects.get(id=title_id)
-        title.delete()
 
 
 @api_view(['POST'])

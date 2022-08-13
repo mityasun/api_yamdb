@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
@@ -86,7 +87,7 @@ class Review(models.Model):
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
     def __str__(self) -> str:
-        return self.text
+        return self.text[:settings.CUT_TEXT]
 
     class Meta:
         ordering = ['-id']
@@ -117,7 +118,7 @@ class Comment(models.Model):
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
     def __str__(self) -> str:
-        return self.text
+        return self.text[:settings.CUT_TEXT]
 
     class Meta:
         verbose_name = 'комментарий'

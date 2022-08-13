@@ -123,3 +123,5 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
+
+CUT_TEXT: int = 30

@@ -53,7 +53,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def validate_username(self, username):
         if username == 'me':
-            raise serializers.ValidationError('Ник "me" нельзя регистрировать!')
+            raise serializers.ValidationError(
+                'Ник "me" нельзя регистрировать!'
+            )
         return username
 
     class Meta:

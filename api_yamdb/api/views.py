@@ -26,10 +26,10 @@ from .serializers import (CategorySerializer, CommentSerializer,
 class CategoryViewSet(ListCreateGenericViewSet):
     """Вьюсет для модели Category"""
 
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = [filters.SearchFilter]
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
-    search_fields = ('name',)
+    search_fields = ['name']
     permission_classes = [IsAdminOrReadOnly]
 
 
@@ -54,7 +54,7 @@ class GenreViewSet(ListCreateGenericViewSet):
     filter_backends = (filters.SearchFilter,)
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
-    search_fields = ('name',)
+    search_fields = ['name']
     permission_classes = [IsAdminOrReadOnly]
 
 
@@ -80,7 +80,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     ACTIONS = ['create', 'partial_update']
     serializer_class = TitleSerializer
     queryset = Title.objects.all()
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
     permission_classes = [IsAdminOrReadOnly]
 
@@ -165,7 +165,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     """Вьюсет для модели Review"""
 
     serializer_class = ReviewSerialiser
-    permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
+    permission_classes = [IsAdminModeratorAuthorOrReadOnly]
 
     def get_title(self):
         # переписано title_id = self.kwargs.get('title_id')
@@ -189,7 +189,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     """Вьюсет для модели Comment"""
 
     serializer_class = CommentSerializer
-    permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
+    permission_classes = [IsAdminModeratorAuthorOrReadOnly]
 
     def get_title(self):
         # переписано title_id = self.kwargs.get('title_id')

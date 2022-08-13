@@ -1,3 +1,4 @@
+from django_filters import rest_framework as flt
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
@@ -71,6 +72,17 @@ class APIGenreDelete(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class TitleFilter(flt.FilterSet):
+    name = flt.CharFilter(field_name='name', lookup_expr='icontains')
+    year = flt.NumberFilter(field_name='year')
+    category = flt.CharFilter(field_name='category__slug')
+    genre = flt.CharFilter(field_name='genre__slug')
+
+    class Meta:
+        model = Title
+        fields = ['name', 'year', 'category', 'genre']
+
+
 class TitleViewSet(viewsets.ModelViewSet):
     """Вьюсет для модели Title"""
 
@@ -78,7 +90,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     queryset = Title.objects.all()
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('name', 'year', 'category', 'genre')
+    filterset_class = TitleFilter
     permission_classes = [IsAdminOrReadOnly]
 
     def get_serializer_class(self):

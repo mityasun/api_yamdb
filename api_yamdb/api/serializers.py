@@ -53,7 +53,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def validate_username(self, username):
         if username == 'me':
-            raise serializers.ValidationError('Ник "me" нельзя регистрировать!')
+            raise serializers.ValidationError(
+                'Ник "me" нельзя регистрировать!'
+            )
         return username
 
     class Meta:
@@ -101,7 +103,7 @@ class UserEditSerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     """Сериализатор для модели Category"""
-    
+
     class Meta:
         fields = ('name', 'slug',)
         model = Category
@@ -109,7 +111,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class GenreSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Genre"""
-    
+
     class Meta:
         fields = ('name', 'slug',)
         model = Genre

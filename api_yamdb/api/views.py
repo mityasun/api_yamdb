@@ -2,7 +2,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets, mixins, filters
+from rest_framework import status, viewsets, filters
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -12,6 +12,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
+from .mixins import ListCreateGenericViewSet
 from .permissions import (IsAdminModeratorAuthorOrReadOnly, IsAdminOrReadOnly,
                           IsAdmin)
 from .serializers import (RegistrationSerializer, TokenSerializer,
@@ -20,8 +21,7 @@ from .serializers import (RegistrationSerializer, TokenSerializer,
                           UserEditSerializer, TitlePostSerializer)
 
 
-class CategoryViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
-                      viewsets.GenericViewSet):
+class CategoryViewSet(ListCreateGenericViewSet):
     """Вьюсет для модели Category"""
 
     filter_backends = (filters.SearchFilter,)
@@ -46,8 +46,7 @@ class APICategoryDelete(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class GenreViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
-                   viewsets.GenericViewSet):
+class GenreViewSet(ListCreateGenericViewSet):
     """Вьюсет для модели Genre"""
 
     filter_backends = (filters.SearchFilter,)

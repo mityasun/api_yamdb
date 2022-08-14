@@ -12,9 +12,9 @@ import datetime
 #             "Запуск: python manage.py load_csv_data. "
 #             "Подробнее об импорте в README.md.")
 #
-    # def handle(self, *args, **options):
-    #     print("Старт импорта")
-    #     start_time = datetime.datetime.now()
+# def handle(self, *args, **options):
+#     print("Старт импорта")
+#     start_time = datetime.datetime.now()
 #
 #         csv_files = (
 #             (User, 'static/data/users.csv'),

@@ -3,7 +3,8 @@
 #
 # from django.core.management import BaseCommand
 #
-# from reviews.models import Category, Genre, Review, Title, Comment, GenreTitle
+# from reviews.models import (Category, Genre, Review, Title,
+#                             Comment, GenreTitle)
 # from users.models import User
 #
 #
@@ -87,11 +88,9 @@
 #                 print(
 #                     f"Загрузка данных таблицы {file} завершена успешно.")
 #
-#             print(
-#                 f"Загрузка данных завершена за"
-#                 f" {(
-#                 datetime.datetime.now()-start_time).total_seconds()} сек."
-#             )
+#             print(f"Загрузка данных завершена за"
+#                   f" {(datetime.datetime.now()-start_time).total_seconds()} "
+#                   f"сек.")
 #
 #         except Exception as error:
 #             print(f"Сбой в работе импорта: {error}.")

@@ -42,7 +42,6 @@ class APICategoryDelete(APIView):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def delete(self, request, slug):
-        # переписано category = Category.objects.get(slug=slug)
         category = get_object_or_404(Category, slug=slug)
         category.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -67,7 +66,6 @@ class APIGenreDelete(APIView):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def delete(self, request, slug):
-        # переписано genre = Genre.objects.get(slug=slug)
         genre = get_object_or_404(Genre, slug=slug)
         genre.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -168,18 +166,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminModeratorAuthorOrReadOnly]
 
     def get_title(self):
-        title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, id=title_id)
-        return title
+        return get_object_or_404(Title, id=self.kwargs.get('title_id'))
 
     def get_queryset(self):
-        title = self.get_title()
-        new_queryset = title.reviews.all()
-        return new_queryset
+        return self.get_title().reviews.all()
 
     def perform_create(self, serializer):
-        title = self.get_title()
-        serializer.save(title=title, author=self.request.user)
+        serializer.save(title=self.get_title(), author=self.request.user)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -189,20 +182,13 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminModeratorAuthorOrReadOnly]
 
     def get_title(self):
-        title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, id=title_id)
-        return title
+        return get_object_or_404(Title, id=self.kwargs.get('title_id'))
 
     def get_review(self):
-        title = self.get_title()
-        review_id = self.kwargs.get('review_id')
-        review = get_object_or_404(Review, title=title, id=review_id)
-        return review
+        return get_object_or_404(Review, id=self.kwargs.get('review_id'))
 
     def get_queryset(self):
-        review = self.get_review()
-        new_queryset = review.comments.all()
-        return new_queryset
+        return self.get_review().comments.all()
 
     def perform_create(self, serializer):
         title = self.get_title()

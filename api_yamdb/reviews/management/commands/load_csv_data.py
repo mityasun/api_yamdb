@@ -1,5 +1,4 @@
 import datetime
-import os
 from csv import DictReader
 
 from django.core.management import BaseCommand

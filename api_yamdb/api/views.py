@@ -18,7 +18,7 @@ from .permissions import (IsAdmin, IsAdminModeratorAuthorOrReadOnly,
                           IsAdminOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, RegistrationSerializer,
-                          ReviewSerialiser, TitlePostSerializer,
+                          ReviewSerializer, TitlePostSerializer,
                           TitleSerializer, TokenSerializer, UserEditSerializer,
                           UserSerializer)
 
@@ -164,25 +164,22 @@ class UserViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     """Вьюсет для модели Review"""
 
-    serializer_class = ReviewSerialiser
+    serializer_class = ReviewSerializer
     permission_classes = [IsAdminModeratorAuthorOrReadOnly]
 
     def get_title(self):
-        # переписано title_id = self.kwargs.get('title_id')
-        # переписано title = get_object_or_404(Title, id=title_id)
-        return get_object_or_404(Title, id=self.kwargs.get('title_id'))
-        # переписано return title
+        title_id = self.kwargs.get('title_id')
+        title = get_object_or_404(Title, id=title_id)
+        return title
 
     def get_queryset(self):
-        # переписано title = self.get_title()
-        # переписано new_queryset = title.reviews.all()
-        return self.get_title().reviews.all()
-        # переписано return new_queryset
+        title = self.get_title()
+        new_queryset = title.reviews.all()
+        return new_queryset
 
     def perform_create(self, serializer):
-        # переписано title = self.get_title()
-        # переписано serializer.save(title=title, author=self.request.user)
-        serializer.save(title=self.get_title(), author=self.request.user)
+        title = self.get_title()
+        serializer.save(title=title, author=self.request.user)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -192,30 +189,22 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminModeratorAuthorOrReadOnly]
 
     def get_title(self):
-        # переписано title_id = self.kwargs.get('title_id')
-        # переписано title = get_object_or_404(Title, id=title_id)
-        return get_object_or_404(Title, id=self.kwargs.get('title_id'))
-        # переписано return title
+        title_id = self.kwargs.get('title_id')
+        title = get_object_or_404(Title, id=title_id)
+        return title
 
     def get_review(self):
-        # переписано  title = self.get_title()
+        title = self.get_title()
         review_id = self.kwargs.get('review_id')
-        # переписано review = get_object_or_404(Review, title=self.get_title(), id=review_id)
-        return get_object_or_404(Review, title=self.get_title(), id=review_id)
-        # переписано  return review
+        review = get_object_or_404(Review, title=title, id=review_id)
+        return review
 
     def get_queryset(self):
-        # переписано  review = self.get_review()
-        # переписано  new_queryset = review.comments.all()
-        return self.get_review().comments.all()
-        # переписано  return new_queryset
+        review = self.get_review()
+        new_queryset = review.comments.all()
+        return new_queryset
 
     def perform_create(self, serializer):
-        # переписано title = self.get_title()
-        # переписано review = self.get_review()
-        # переписано serializer.save(title=title, review=review, author=self.request.user)
-        serializer.save(
-            title=self.get_title(),
-            review=self.get_review(),
-            author=self.request.user
-        )
+        title = self.get_title()
+        review = self.get_review()
+        serializer.save(title=title, review=review, author=self.request.user)

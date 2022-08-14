@@ -8,7 +8,7 @@ from reviews.models import Category, Genre, Title, Review, Comment
 from users.models import User
 
 
-class ReviewSerialiser(serializers.ModelSerializer):
+class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username', read_only=True,
         default=serializers.CurrentUserDefault()

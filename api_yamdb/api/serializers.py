@@ -17,13 +17,20 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = '__all__'
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=('author', 'title')
+        fields = ('id', 'author', 'title', 'text', 'score', 'pub_date')
+
+    def validate(self, data):
+        if self.context['request'].method != 'POST':
+            return data
+
+        if Review.objects.filter(
+            author=self.context['request'].user,
+            title=self.context['view'].kwargs.get('title_id')
+        ).exists():
+            raise serializers.ValidationError(
+                'Нельзя оставить отзыв на одно произведение дважды'
             )
-        ]
+        return data
 
 
 class CommentSerializer(serializers.ModelSerializer):

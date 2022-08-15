@@ -7,6 +7,7 @@ from rest_framework.validators import UniqueValidator
 
 from reviews.models import Category, Genre, Title, Review, Comment
 from users.models import User
+from users.validators import ValidateUsername
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -56,31 +57,28 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only_fields = ('title', 'review')
 
 
-class RegistrationSerializer(serializers.ModelSerializer):
-    """Сериализатор регистрации User"""
-
-    username = serializers.CharField(
-        validators=[UniqueValidator(queryset=User.objects.all())],
-        required=True
-    )
-    email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=User.objects.all())],
-        required=True
-    )
-
-    def validate_username(self, username):
-        if username == 'me':
-            raise serializers.ValidationError(
-                'Ник "me" нельзя регистрировать!'
-            )
-        return username
+class UserSerializer(serializers.ModelSerializer, ValidateUsername):
+    """Сериализатор модели User"""
 
     class Meta:
         model = User
-        fields = ['username', 'email']
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
+        lookup_field = ('username',)
 
 
-class TokenSerializer(serializers.ModelSerializer):
+class RegistrationSerializer(UserSerializer, ValidateUsername):
+    """Сериализатор регистрации User"""
+
+    username = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'email')
+
+
+class TokenSerializer(UserSerializer, ValidateUsername):
     """Сериализатор токена"""
 
     username = serializers.CharField(required=True)
@@ -88,34 +86,15 @@ class TokenSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'confirmation_code']
+        fields = ('username', 'confirmation_code')
+    # я тут мету не удалил, потому что без нее валится тест,
+    # требует в филдах конфирмэйшен код
 
 
-class UserSerializer(serializers.ModelSerializer):
-    """Сериализатор модели User"""
-
-    username = serializers.CharField(
-        validators=[UniqueValidator(queryset=User.objects.all())],
-        required=True
-    )
-    email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=User.objects.all())],
-        required=True
-    )
-
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'first_name',
-                  'last_name', 'bio', 'role']
-
-
-class UserEditSerializer(serializers.ModelSerializer):
+class UserEditSerializer(UserSerializer, ValidateUsername):
     """Сериализатор модели User для get и patch"""
 
-    class Meta:
-        model = User
-        fields = '__all__'
-        read_only_fields = ['role']
+    role = serializers.CharField(read_only=True)
 
 
 class CategorySerializer(serializers.ModelSerializer):

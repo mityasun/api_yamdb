@@ -13,7 +13,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
 from .filters import TitleFilter
-from .mixins import ListCreateGenericViewSet
+from .mixins import ListCreateDestroyGenericViewSet
 from .permissions import (IsAdmin, IsAdminModeratorAuthorOrReadOnly,
                           IsAdminOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
@@ -23,7 +23,7 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           UserSerializer)
 
 
-class CategoryViewSet(ListCreateGenericViewSet):
+class CategoryViewSet(ListCreateDestroyGenericViewSet):
     """Вьюсет для модели Category"""
 
     filter_backends = [filters.SearchFilter]
@@ -47,7 +47,7 @@ class APICategoryDelete(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class GenreViewSet(ListCreateGenericViewSet):
+class GenreViewSet(ListCreateDestroyGenericViewSet):
     """Вьюсет для модели Genre"""
 
     filter_backends = (filters.SearchFilter,)

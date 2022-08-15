@@ -20,7 +20,8 @@ class User(AbstractUser, ValidateUsername):
         'Никнэйм', max_length=settings.USERNAME_NAME, unique=True
     )
     role = models.CharField('Роль', max_length=30, choices=ROLES, default=USER)
-    # не понимаю я как тут циклом в 1 строке пройтись, дай намек пожирней плиз:)
+    # не понимаю я как тут циклом в 1 строке пройтись,
+    # дай намек пожирней плиз:)
     bio = models.TextField('Об авторе', null=True, blank=True)
 
     @property

@@ -13,7 +13,6 @@ class ValidateUsername:
             raise ValidationError('Ник "me" нельзя регистрировать!')
         return username
 
-
     def validate_symbols(self, username):
         """Валидация допустимых символов в username."""
 

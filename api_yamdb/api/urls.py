@@ -19,7 +19,6 @@ router_v1.register(
     r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
     CommentViewSet, basename='comments')
 
-# я тут упростил regex по подсказкам пайчарма
 urlpatterns = [
     path('v1/', include(router_v1.urls)),
     re_path(r'^v1/genres/(?P<slug>[-a-zA-Z\d_]+)/$',

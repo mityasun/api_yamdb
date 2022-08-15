@@ -1,11 +1,11 @@
+from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
-from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.decorators import action, api_view
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -89,28 +89,27 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
 def register_user(request):
     """Функция регистрации user, генерации и отправки кода на почту"""
 
     serializer = RegistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    serializer.save()
-    user = get_object_or_404(
-        User, username=serializer.data['username']
-    )
-    confirmation_code = default_token_generator.make_token(user)
-    send_mail(
-        subject='Регистрация в проекте YaMDb.',
-        message=f'Ваш код подтверждения: {confirmation_code}',
-        from_email='info@yamdb.ru',
-        recipient_list=[serializer.validated_data['email']]
-    )
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    try:
+        user, _ = User.objects.get_or_create(**serializer.validated_data)
+        confirmation_code = default_token_generator.make_token(user)
+        send_mail(
+            subject='Регистрация в проекте YaMDb.',
+            message=f'Ваш код подтверждения: {confirmation_code}',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email]
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as error:
+        print(f"Ошибка username или email уже заняты: {error}.")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
 def get_token(request):
     """Функция выдачи токена"""
 
@@ -134,9 +133,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAdmin]
-    pagination_class = LimitOffsetPagination
+    permission_classes = (IsAdmin,)
     lookup_field = 'username'
+    lookup_value_regex = '[^/]+'
 
     @action(
         methods=['get', 'patch'],
@@ -146,17 +145,14 @@ class UserViewSet(viewsets.ModelViewSet):
     )
     def get_edit_user(self, request):
         user = request.user
-        if request.method == 'GET':
-            serializer = self.get_serializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        if request.method == 'PATCH':
+        serializer = self.get_serializer(user)
+        if request.method == 'GET' or 'PATCH':
             serializer = self.get_serializer(
                 user, data=request.data, partial=True
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

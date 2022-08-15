@@ -102,6 +102,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
+DEFAULT_FROM_EMAIL = 'noreply@yamdb.ru'
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -125,3 +127,6 @@ SIMPLE_JWT = {
 }
 
 CUT_TEXT: int = 30
+
+USERNAME_NAME: int = 150
+EMAIL: int = 254

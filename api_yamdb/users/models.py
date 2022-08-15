@@ -1,8 +1,10 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from .validators import ValidateUsername
 
 
-class User(AbstractUser):
+class User(AbstractUser, ValidateUsername):
     ADMIN = 'admin'
     MODERATOR = 'moderator'
     USER = 'user'
@@ -13,9 +15,12 @@ class User(AbstractUser):
         (USER, 'Пользователь'),
     )
 
-    email = models.EmailField('Почта', max_length=254, unique=True)
-    username = models.CharField('Никнэйм', max_length=30, unique=True)
-    role = models.CharField('Роль', max_length=10, choices=ROLES, default=USER)
+    email = models.EmailField('Почта', max_length=settings.EMAIL, unique=True)
+    username = models.CharField(
+        'Никнэйм', max_length=settings.USERNAME_NAME, unique=True
+    )
+    role = models.CharField('Роль', max_length=30, choices=ROLES, default=USER)
+    # не понимаю я как тут циклом в 1 строке пройтись, дай намек пожирней плиз:)
     bio = models.TextField('Об авторе', null=True, blank=True)
 
     @property
@@ -24,13 +29,13 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.role == (self.ADMIN or self.is_superuser or self.is_staff)
+        return self.role == self.ADMIN or self.is_superuser or self.is_staff
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
     class Meta:
-        ordering = ('-id',)
+        ordering = ('id',)
         verbose_name = 'пользователь'
         verbose_name_plural = 'пользователи'
 

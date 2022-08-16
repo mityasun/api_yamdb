@@ -1,10 +1,10 @@
 from django.conf import settings
-from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db import models
 
+from api_yamdb.settings import LEN_FOR_NAME
 from users.models import User
 from .base_models import BaseModelGenreCategory
-from api_yamdb.settings import LEN_FOR_NAME
 
 
 class Category(BaseModelGenreCategory):
@@ -27,9 +27,7 @@ class Title(models.Model):
     name = models.CharField('Название', max_length=256)
     year = models.PositiveSmallIntegerField('Год')
     description = models.TextField('Описание', null=True, blank=True)
-    genre = models.ManyToManyField(
-        Genre, through='GenreTitle'
-    )
+    genre = models.ManyToManyField(Genre, through='GenreTitle')
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
@@ -49,11 +47,9 @@ class Title(models.Model):
 
 class GenreTitle(models.Model):
     title = models.ForeignKey(
-        Title,
-        on_delete=models.CASCADE)
+        Title, on_delete=models.CASCADE)
     genre = models.ForeignKey(
-        Genre,
-        on_delete=models.CASCADE, verbose_name='жанры')
+        Genre, on_delete=models.CASCADE, verbose_name='жанры')
 
     def __str__(self):
         return f'{self.title} {self.genre}'

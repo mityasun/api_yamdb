@@ -1,7 +1,6 @@
 import datetime as dt
 
 from django.conf import settings
-from django.db.models import Avg
 from rest_framework import serializers
 
 from reviews.models import Category, Genre, Title, Review, Comment
@@ -114,10 +113,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор для модели Title
-    (предназначенный для чтения данных)
-    """
+    """Сериализатор для модели Title (предназначенный для чтения данных)"""
 
     genre = GenreSerializer(many=True)
     category = CategorySerializer()
@@ -126,15 +122,13 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Title
         fields = '__all__'
-        read_only_fields = [
-            'id', 'rating', 'name', 'year', 'description', 'genre', 'category']
+        read_only_fields = (
+            'id', 'rating', 'name', 'year', 'description', 'genre', 'category'
+        )
 
 
 class TitlePostSerializer(TitleSerializer):
-    """
-    Сериализатор для модели Title
-    (предназначенный для записи данных)
-    """
+    """Сериализатор для модели Title (предназначенный для записи данных)"""
 
     genre = ObjectForTitleField(
         queryset=Genre.objects.all(), slug_field='slug', many=True
@@ -147,7 +141,7 @@ class TitlePostSerializer(TitleSerializer):
         fields = (
             'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
         )
-        read_only_fields = ('id', 'rating',)
+        read_only_fields = ('id', 'rating')
 
     def validate_year(self, value):
         year = dt.date.today().year

@@ -3,37 +3,29 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from users.models import User
+from .base_models import BaseModelGenreCategory
+from api_yamdb.settings import LEN_FOR_NAME
 
 
-class Category(models.Model):
-    name = models.CharField('Категория', max_length=256)
-    slug = models.SlugField('Ссылка', max_length=50, unique=True)
+class Category(BaseModelGenreCategory):
+    name = models.CharField('Категория', max_length=LEN_FOR_NAME)
 
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        ordering = ['-id']
+    class Meta(BaseModelGenreCategory.Meta):
         verbose_name = 'категория'
         verbose_name_plural = 'категории'
 
 
-class Genre(models.Model):
-    name = models.CharField('Жанр', max_length=256)
-    slug = models.SlugField('Ссылка', max_length=50, unique=True)
+class Genre(BaseModelGenreCategory):
+    name = models.CharField('Жанр', max_length=LEN_FOR_NAME)
 
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        ordering = ['-id']
+    class Meta(BaseModelGenreCategory.Meta):
         verbose_name = 'жанр'
         verbose_name_plural = 'жанры'
 
 
 class Title(models.Model):
     name = models.CharField('Название', max_length=256)
-    year = models.IntegerField('Год')
+    year = models.PositiveSmallIntegerField('Год')
     description = models.TextField('Описание', null=True, blank=True)
     genre = models.ManyToManyField(
         Genre, through='GenreTitle'
@@ -50,7 +42,7 @@ class Title(models.Model):
         return self.name
 
     class Meta:
-        ordering = ['-id']
+        ordering = ('name',)
         verbose_name = 'произведение'
         verbose_name_plural = 'произведения'
 

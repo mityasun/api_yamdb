@@ -86,7 +86,7 @@ class BaseReviewCommentModel(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
 
 
 class Review(BaseReviewCommentModel):

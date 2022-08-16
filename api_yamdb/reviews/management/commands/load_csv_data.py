@@ -87,9 +87,9 @@ def import_csv_data():
 
 
 class Command(BaseCommand):
-    help = (f"Загрузка data из static/data/*.csv. "
-            f"Запуск: python manage.py load_csv_data. "
-            f"Подробнее об импорте в README.md.")
+    help = ("Загрузка data из static/data/*.csv."
+            "Запуск: python manage.py load_csv_data."
+            "Подробнее об импорте в README.md.")
 
     def handle(self, *args, **options):
         print("Старт импорта")

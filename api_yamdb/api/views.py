@@ -44,7 +44,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
     filterset_class = TitleFilter
     permission_classes = [IsAdminOrReadOnly]
-    ordering_field = ('name',)
+    ordering = ('name',)
 
     def get_serializer_class(self):
         if self.action in self.ACTIONS:

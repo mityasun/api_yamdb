@@ -1,5 +1,6 @@
 import datetime as dt
 
+from django.conf import settings
 from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
@@ -23,8 +24,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only_fields = ('title',)
 
     def validate_score(self, value):
-        if not (1 <= value <= 10):
-            raise serializers.ValidationError('Вы можете поставить оценку от 1 до 10')
+        if not (settings.MIN_SCORE <= value <= settings.MAX_SCORE):
+            raise serializers.ValidationError(
+                'Вы можете поставить оценку от 1 до 10'
+            )
         return value
 
     def validate(self, data):

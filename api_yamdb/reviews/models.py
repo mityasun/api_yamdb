@@ -4,10 +4,6 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 from users.models import User
 
-MIN_SCORE = 1
-MAX_SCORE = 10
-DEFAULT_SCORE = 1
-
 
 class Category(models.Model):
     name = models.CharField('Категория', max_length=256)
@@ -95,10 +91,16 @@ class BaseReviewCommentModel(models.Model):
 
 class Review(BaseReviewCommentModel):
     score = models.PositiveSmallIntegerField(
-        'Оценка', default=DEFAULT_SCORE,
+        'Оценка', default=settings.DEFAULT_SCORE,
         validators=[
-            MinValueValidator(MIN_SCORE, (f'Минимальная оценка {MIN_SCORE}')),
-            MaxValueValidator(MAX_SCORE, (f'Максимальная оценка {MAX_SCORE}'))
+            MinValueValidator(
+                settings.MIN_SCORE,
+                (f'Минимальная оценка {settings.MIN_SCORE}')
+            ),
+            MaxValueValidator(
+                settings.MAX_SCORE,
+                (f'Максимальная оценка {settings.MAX_SCORE}')
+            )
         ]
     )
 

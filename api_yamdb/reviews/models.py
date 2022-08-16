@@ -94,12 +94,10 @@ class Review(BaseReviewCommentModel):
         'Оценка', default=settings.DEFAULT_SCORE,
         validators=[
             MinValueValidator(
-                settings.MIN_SCORE,
-                (f'Минимальная оценка {settings.MIN_SCORE}')
+                settings.MIN_SCORE, f'Минимальная оценка {settings.MIN_SCORE}'
             ),
             MaxValueValidator(
-                settings.MAX_SCORE,
-                (f'Максимальная оценка {settings.MAX_SCORE}')
+                settings.MAX_SCORE, f'Максимальная оценка {settings.MAX_SCORE}'
             )
         ]
     )

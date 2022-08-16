@@ -17,7 +17,13 @@ router_v1.register(
 )
 router_v1.register(
     r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
-    CommentViewSet, basename='comments')
+    CommentViewSet, basename='comments'
+)
+
+urlpatterns_auth = [
+    path('signup/', register_user, name='register_user'),
+    path('token/', get_token, name='token'),
+]
 
 urlpatterns = [
     path('v1/', include(router_v1.urls)),
@@ -25,8 +31,7 @@ urlpatterns = [
             APIGenreDelete.as_view(), name='genre_destroy'),
     re_path(r'^v1/categories/(?P<slug>[-a-zA-Z\d_]+)/$',
             APICategoryDelete.as_view(), name='category_destroy'),
-    path('v1/auth/signup/', register_user, name='register_user'),
-    path('v1/auth/token/', get_token, name='token'),
+    path('v1/auth/', include(urlpatterns_auth)),
     path(
         'v1/redoc/',
         TemplateView.as_view(template_name='redoc.html'),

@@ -110,7 +110,7 @@ class Review(BaseReviewCommentModel):
         default_related_name = 'reviews'
         constraints = [
             models.UniqueConstraint(
-                fields=['author', 'title'],
+                fields=('author', 'title'),
                 name='unique_review'
             )
         ]

@@ -24,7 +24,7 @@ class Genre(BaseModelGenreCategory):
 
 
 class Title(models.Model):
-    name = models.CharField('Название', max_length=256)
+    name = models.CharField('Название', max_length=LEN_FOR_NAME)
     year = models.PositiveSmallIntegerField('Год')
     description = models.TextField('Описание', null=True, blank=True)
     genre = models.ManyToManyField(Genre, through='GenreTitle')

@@ -1,11 +1,10 @@
-from django.urls import include, path, re_path
+from django.urls import include, path
 from django.views.generic import TemplateView
 from rest_framework.routers import DefaultRouter
 
 from .views import (CategoryViewSet, CommentViewSet, GenreViewSet,
                     ReviewViewSet, TitleViewSet, get_token,
-                    UserViewSet, register_user, APIGenreDelete,
-                    APICategoryDelete)
+                    UserViewSet, register_user)
 
 router_v1 = DefaultRouter()
 router_v1.register(r'users', UserViewSet, basename='users')
@@ -22,10 +21,6 @@ router_v1.register(
 # я тут упростил regex по подсказкам пайчарма
 urlpatterns = [
     path('v1/', include(router_v1.urls)),
-    re_path(r'^v1/genres/(?P<slug>[-a-zA-Z\d_]+)/$',
-            APIGenreDelete.as_view(), name='genre_destroy'),
-    re_path(r'^v1/categories/(?P<slug>[-a-zA-Z\d_]+)/$',
-            APICategoryDelete.as_view(), name='category_destroy'),
     path('v1/auth/signup/', register_user, name='register_user'),
     path('v1/auth/token/', get_token, name='token'),
     path(

@@ -1,11 +1,10 @@
 import datetime as dt
-
-from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 from reviews.models import Category, Genre, Title, Review, Comment
 from users.models import User
+from .related_fields import ObjectForTitleField
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -117,7 +116,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['name', 'slug']
+        fields = ('name', 'slug',)
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -125,7 +124,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Genre
-        fields = ['name', 'slug']
+        fields = ('name', 'slug',)
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -136,18 +135,13 @@ class TitleSerializer(serializers.ModelSerializer):
 
     genre = GenreSerializer(many=True)
     category = CategorySerializer()
-    rating = serializers.SerializerMethodField(required=False)
-    description = serializers.CharField(required=False)
+    rating = serializers.IntegerField(required=False)
 
     class Meta:
         model = Title
-        fields = [
-            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
-        ]
-
-    def get_rating(self, obj):
-        return Review.objects.filter(
-            title=obj.id).aggregate(Avg('score'))['score__avg']
+        fields = '__all__'
+        read_only_fields = [
+            'id', 'rating', 'name', 'year', 'description', 'genre', 'category']
 
 
 class TitlePostSerializer(TitleSerializer):
@@ -156,12 +150,18 @@ class TitlePostSerializer(TitleSerializer):
     (предназначенный для записи данных)
     """
 
-    genre = serializers.SlugRelatedField(
+    genre = ObjectForTitleField(
         queryset=Genre.objects.all(), slug_field='slug', many=True
     )
-    category = serializers.SlugRelatedField(
+    category = ObjectForTitleField(
         queryset=Category.objects.all(), slug_field='slug'
     )
+
+    class Meta(TitleSerializer.Meta):
+        fields = (
+            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
+        )
+        read_only_fields = ('id', 'rating',)
 
     def validate_year(self, value):
         year = dt.date.today().year

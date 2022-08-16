@@ -125,3 +125,7 @@ SIMPLE_JWT = {
 }
 
 CUT_TEXT: int = 30
+
+LEN_FOR_NAME: int = 256
+
+LEN_FOR_SLUG: int = 50

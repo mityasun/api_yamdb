@@ -15,23 +15,27 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username', read_only=True,
         default=serializers.CurrentUserDefault()
     )
-    title = serializers.PrimaryKeyRelatedField(read_only=True)
+    score = serializers.IntegerField()
 
     class Meta:
         model = Review
-        fields = ('id', 'author', 'title', 'text', 'score', 'pub_date')
+        fields = '__all__'
+        read_only_fields = ('title',)
+
+    def validate_score(self, value):
+        if not (1 <= value <= 10):
+            raise serializers.ValidationError('Вы можете поставить оценку от 1 до 10')
+        return value
 
     def validate(self, data):
-        if self.context['request'].method != 'POST':
-            return data
-
-        if Review.objects.filter(
-            author=self.context['request'].user,
-            title=self.context['view'].kwargs.get('title_id')
-        ).exists():
-            raise serializers.ValidationError(
-                'Нельзя оставить отзыв на одно произведение дважды'
-            )
+        if self.context['request'].method == 'POST':
+            if Review.objects.filter(
+                author=self.context['request'].user,
+                title=self.context['view'].kwargs.get('title_id')
+            ).exists():
+                raise serializers.ValidationError(
+                    'Нельзя оставить отзыв на одно произведение дважды'
+                )
         return data
 
 
@@ -42,12 +46,11 @@ class CommentSerializer(serializers.ModelSerializer):
         slug_field='username', read_only=True,
         default=serializers.CurrentUserDefault()
     )
-    title = serializers.PrimaryKeyRelatedField(read_only=True)
-    review = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Comment
         fields = '__all__'
+        read_only_fields = ('title', 'review')
 
 
 class RegistrationSerializer(serializers.ModelSerializer):

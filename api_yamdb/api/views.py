@@ -41,10 +41,10 @@ class TitleViewSet(viewsets.ModelViewSet):
 
     ACTIONS = ['create', 'partial_update']
     serializer_class = TitlePostSerializer
-    queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
+    queryset = Title.objects.all().annotate(
+        rating=Avg('reviews__score')).order_by('name')
     filterset_class = TitleFilter
     permission_classes = [IsAdminOrReadOnly]
-    ordering = ('name',)
 
     def get_serializer_class(self):
         if self.action in self.ACTIONS:

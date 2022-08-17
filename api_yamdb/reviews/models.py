@@ -5,10 +5,10 @@ from django.db import models
 from api_yamdb.settings import LEN_FOR_NAME
 from users.models import User
 from .base_models import BaseModelGenreCategory
+from .validators import ValidateTitleYear
 
 
 class Category(BaseModelGenreCategory):
-    name = models.CharField('Категория', max_length=LEN_FOR_NAME)
 
     class Meta(BaseModelGenreCategory.Meta):
         verbose_name = 'категория'
@@ -16,16 +16,15 @@ class Category(BaseModelGenreCategory):
 
 
 class Genre(BaseModelGenreCategory):
-    name = models.CharField('Жанр', max_length=LEN_FOR_NAME)
 
     class Meta(BaseModelGenreCategory.Meta):
         verbose_name = 'жанр'
         verbose_name_plural = 'жанры'
 
 
-class Title(models.Model):
+class Title(models.Model, ValidateTitleYear):
     name = models.CharField('Название', max_length=LEN_FOR_NAME)
-    year = models.PositiveSmallIntegerField('Год')
+    year = models.PositiveSmallIntegerField('Год', db_index=True)
     description = models.TextField('Описание', null=True, blank=True)
     genre = models.ManyToManyField(Genre, through='GenreTitle')
     category = models.ForeignKey(
@@ -36,13 +35,13 @@ class Title(models.Model):
         verbose_name='категория'
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ('name',)
         verbose_name = 'произведение'
         verbose_name_plural = 'произведения'
+
+    def __str__(self):
+        return self.name
 
 
 class GenreTitle(models.Model):

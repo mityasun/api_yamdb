@@ -1,5 +1,3 @@
-import datetime as dt
-
 from django.conf import settings
 from rest_framework import serializers
 
@@ -7,7 +5,7 @@ from api_yamdb.settings import EMAIL, USERNAME_NAME
 from reviews.models import Category, Genre, Title, Review, Comment
 from users.models import User
 from users.validators import ValidateUsername
-from .related_fields import ObjectForTitleField
+from reviews.validators import ValidateTitleYear
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -99,38 +97,36 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Title (предназначенный для чтения данных)"""
+    """Сериализатор для модели Title (предназначенный для чтения данных)."""
 
     genre = GenreSerializer(many=True)
     category = CategorySerializer()
-    rating = serializers.IntegerField(required=False)
+    rating = serializers.IntegerField()
 
     class Meta:
         model = Title
         fields = '__all__'
         read_only_fields = (
-            'id', 'rating', 'name', 'year', 'description', 'genre', 'category'
+            'id', 'name', 'year', 'description', 'genre', 'category', 'rating'
         )
 
 
-class TitlePostSerializer(TitleSerializer):
+class TitlePostSerializer(serializers.ModelSerializer, ValidateTitleYear):
     """Сериализатор для модели Title (предназначенный для записи данных)"""
 
-    genre = ObjectForTitleField(
+    genre = serializers.SlugRelatedField(
         queryset=Genre.objects.all(), slug_field='slug', many=True
     )
-    category = ObjectForTitleField(
+    category = serializers.SlugRelatedField(
         queryset=Category.objects.all(), slug_field='slug'
     )
 
-    class Meta(TitleSerializer.Meta):
+    class Meta:
+        model = Title
         fields = (
-            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
+            'name', 'year', 'description', 'genre', 'category'
         )
-        read_only_fields = ('id', 'rating')
+        read_only_fields = ('id',)
 
-    def validate_year(self, value):
-        year = dt.date.today().year
-        if value > year:
-            raise serializers.ValidationError('Такой год еще не наступил.')
-        return value
+    def to_representation(self, value):
+        return TitleSerializer(value, context=self.context).data

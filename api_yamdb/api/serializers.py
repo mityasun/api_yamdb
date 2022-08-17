@@ -3,11 +3,11 @@ import datetime as dt
 from django.conf import settings
 from rest_framework import serializers
 
+from api_yamdb.settings import EMAIL, USERNAME_NAME
 from reviews.models import Category, Genre, Title, Review, Comment
 from users.models import User
 from users.validators import ValidateUsername
 from .related_fields import ObjectForTitleField
-from api_yamdb.settings import EMAIL, USERNAME_NAME
 
 
 class ReviewSerializer(serializers.ModelSerializer):

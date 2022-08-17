@@ -1,12 +1,11 @@
 import datetime as dt
+
 from django.core.exceptions import ValidationError
 
 
-class ValidateTitleYear:
+def validate_year(value):
     """Валидатор для года произведения."""
-
-    def validate_year(self, year):
-        now = dt.date.today().year
-        if year > now:
-            raise ValidationError('Такой год еще не наступил.')
-        return year
+    current_year = dt.date.today().year
+    if value > current_year:
+        raise ValidationError('Такой год еще не наступил.')
+    return value

@@ -1,12 +1,9 @@
-import datetime as dt
-
-from api_yamdb.settings import LEN_FOR_NAME
 from django.conf import settings
-from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from users.models import User
 
+from api_yamdb.settings import LEN_FOR_NAME
+from users.models import User
 from .base_models import BaseModelGenreCategory
 from .validators import validate_year
 
@@ -46,12 +43,6 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
-
-    def validate_year(self, year):
-        current_year = dt.date.today().year
-        if year > current_year:
-            raise ValidationError('Такой год еще не наступил.')
-        return year
 
 
 class GenreTitle(models.Model):

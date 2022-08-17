@@ -1,6 +1,5 @@
 from django.conf import settings
 from rest_framework import serializers
-from reviews.models import Category, Comment, Genre, Review, Title
 
 from api_yamdb.settings import EMAIL, USERNAME_NAME
 from reviews.models import Category, Genre, Title, Review, Comment

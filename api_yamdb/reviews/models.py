@@ -1,11 +1,14 @@
-from django.conf import settings
-from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db import models
+import datetime as dt
 
 from api_yamdb.settings import LEN_FOR_NAME
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
 from users.models import User
+
 from .base_models import BaseModelGenreCategory
-from .validators import ValidateTitleYear
+from .validators import validate_year
 
 
 class Category(BaseModelGenreCategory):
@@ -22,9 +25,10 @@ class Genre(BaseModelGenreCategory):
         verbose_name_plural = 'жанры'
 
 
-class Title(models.Model, ValidateTitleYear):
+class Title(models.Model):
     name = models.CharField('Название', max_length=LEN_FOR_NAME)
-    year = models.PositiveSmallIntegerField('Год', db_index=True)
+    year = models.PositiveSmallIntegerField(
+        'Год', db_index=True, validators=[validate_year])
     description = models.TextField('Описание', null=True, blank=True)
     genre = models.ManyToManyField(Genre, through='GenreTitle')
     category = models.ForeignKey(
@@ -42,6 +46,12 @@ class Title(models.Model, ValidateTitleYear):
 
     def __str__(self):
         return self.name
+
+    def validate_year(self, year):
+        current_year = dt.date.today().year
+        if year > current_year:
+            raise ValidationError('Такой год еще не наступил.')
+        return year
 
 
 class GenreTitle(models.Model):

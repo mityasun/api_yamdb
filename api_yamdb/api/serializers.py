@@ -1,10 +1,8 @@
 from django.conf import settings
 from rest_framework import serializers
-
-from reviews.models import Category, Genre, Title, Review, Comment
+from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 from users.validators import ValidateUsername
-from reviews.validators import ValidateTitleYear
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -115,7 +113,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
     genre = GenreSerializer(many=True)
     category = CategorySerializer()
-    rating = serializers.IntegerField()
+    rating = serializers.IntegerField(required=False)
 
     class Meta:
         model = Title
@@ -125,7 +123,7 @@ class TitleSerializer(serializers.ModelSerializer):
         )
 
 
-class TitlePostSerializer(serializers.ModelSerializer, ValidateTitleYear):
+class TitlePostSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Title (предназначенный для записи данных)"""
 
     genre = serializers.SlugRelatedField(
@@ -134,13 +132,14 @@ class TitlePostSerializer(serializers.ModelSerializer, ValidateTitleYear):
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(), slug_field='slug'
     )
+    rating = serializers.IntegerField(required=False)
 
     class Meta:
         model = Title
         fields = (
-            'name', 'year', 'description', 'genre', 'category'
+            'name', 'year', 'description', 'genre', 'category', 'rating'
         )
-        read_only_fields = ('id',)
+        read_only_fields = ('id', 'rating')
 
     def to_representation(self, value):
         return TitleSerializer(value, context=self.context).data

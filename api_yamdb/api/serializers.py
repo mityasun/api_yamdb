@@ -17,19 +17,14 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username', read_only=True,
         default=serializers.CurrentUserDefault()
     )
-    score = serializers.IntegerField()
+    score = serializers.IntegerField(
+        min_value=settings.MIN_SCORE, max_value=settings.MAX_SCORE
+    )
 
     class Meta:
         model = Review
         fields = '__all__'
         read_only_fields = ('title',)
-
-    def validate_score(self, value):
-        if not (settings.MIN_SCORE <= value <= settings.MAX_SCORE):
-            raise serializers.ValidationError(
-                'Вы можете поставить оценку от 1 до 10'
-            )
-        return value
 
     def validate(self, data):
         if self.context['request'].method == 'POST':
@@ -54,7 +49,7 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
-        read_only_fields = ('title', 'review')
+        read_only_fields = ('review',)
 
 
 class UserSerializer(serializers.ModelSerializer, ValidateUsername):

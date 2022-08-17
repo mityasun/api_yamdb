@@ -63,21 +63,21 @@ class BaseReviewCommentModel(models.Model):
     """Базовый абстрактный класс для Review и Comment."""
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, verbose_name='Автор')
-    title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, verbose_name='Произведение'
-    )
     text = models.TextField('Текст')
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
-
-    def __str__(self) -> str:
-        return self.text[:settings.CUT_TEXT]
 
     class Meta:
         abstract = True
         ordering = ('-pub_date',)
 
+    def __str__(self) -> str:
+        return self.text[:settings.CUT_TEXT]
+
 
 class Review(BaseReviewCommentModel):
+    title = models.ForeignKey(
+        Title, on_delete=models.CASCADE, verbose_name='Произведение'
+    )
     score = models.PositiveSmallIntegerField(
         'Оценка', default=settings.DEFAULT_SCORE,
         validators=[

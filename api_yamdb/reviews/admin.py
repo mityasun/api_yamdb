@@ -37,10 +37,10 @@ class ReviewAdmin(admin.ModelAdmin):
 
 class CommentAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'author', 'title', 'review', 'text', 'pub_date'
+        'id', 'author', 'review', 'text', 'pub_date'
     )
-    search_fields = ('title', 'text', 'review')
-    list_filter = ('author', 'title', 'review', 'pub_date')
+    search_fields = ('text', 'review')
+    list_filter = ('author', 'review', 'pub_date')
 
 
 admin.site.register(Category, CategoryAdmin)

@@ -7,15 +7,11 @@ class ValidateUsername:
     """Валидаторы для username."""
 
     def validate_username(self, username):
-        """Валидация, что нельзя регистрировать username me."""
+        pattern = re.compile(r'^[\w.@+-]+')
 
-        if username == 'me':
+        if pattern.fullmatch(username) is None:
+            raise ValidationError('Некорректные символы в username!')
+        elif username == 'me':
             raise ValidationError('Ник "me" нельзя регистрировать!')
         return username
 
-    def validate_symbols(self, username):
-        """Валидация допустимых символов в username."""
-
-        if re.match(r"^[\w.@+-]+\z", username) is None:
-            raise ValidationError('Некорректные символы в username!')
-        return username

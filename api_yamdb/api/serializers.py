@@ -7,6 +7,7 @@ from reviews.models import Category, Genre, Title, Review, Comment
 from users.models import User
 from users.validators import ValidateUsername
 from .related_fields import ObjectForTitleField
+from api_yamdb.settings import EMAIL, USERNAME_NAME
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -66,31 +67,21 @@ class UserSerializer(serializers.ModelSerializer, ValidateUsername):
         lookup_field = ('username',)
 
 
-class RegistrationSerializer(UserSerializer, ValidateUsername):
+class RegistrationSerializer(serializers.Serializer, ValidateUsername):
     """Сериализатор регистрации User"""
 
-    username = serializers.CharField(required=True)
-    email = serializers.EmailField(required=True)
-
-    class Meta:
-        model = User
-        fields = ('username', 'email')
+    username = serializers.CharField(required=True, max_length=USERNAME_NAME)
+    email = serializers.EmailField(required=True, max_length=EMAIL)
 
 
-class TokenSerializer(UserSerializer, ValidateUsername):
+class TokenSerializer(serializers.Serializer, ValidateUsername):
     """Сериализатор токена"""
 
-    username = serializers.CharField(required=True)
+    username = serializers.CharField(required=True, max_length=USERNAME_NAME)
     confirmation_code = serializers.CharField(required=True)
 
-    class Meta:
-        model = User
-        fields = ('username', 'confirmation_code')
-    # я тут мету не удалил, потому что без нее валится тест,
-    # требует в филдах конфирмэйшен код
 
-
-class UserEditSerializer(UserSerializer, ValidateUsername):
+class UserEditSerializer(UserSerializer):
     """Сериализатор модели User для get и patch"""
 
     role = serializers.CharField(read_only=True)

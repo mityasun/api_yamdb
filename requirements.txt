@@ -1,5 +1,5 @@
 requests==2.26.0
-django==2.2.16
+django==2.2.28
 djangorestframework==3.12.4
 PyJWT==2.1.0
 pytest==6.2.4

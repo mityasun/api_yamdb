@@ -63,7 +63,9 @@ def register_user(request):
     try:
         user, _ = User.objects.get_or_create(**serializer.validated_data)
     except IntegrityError:
-        raise ValidationError('username или email заняты!')
+        raise ValidationError(
+            'username или email заняты!', status.HTTP_400_BAD_REQUEST
+        )
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
         subject='Регистрация в проекте YaMDb.',

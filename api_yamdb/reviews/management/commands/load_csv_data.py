@@ -72,7 +72,6 @@ def import_csv_data():
                 data = model(
                     id=row['id'],
                     review_id=row['review_id'],
-                    title_id=row['title_id'],
                     text=row['text'],
                     author_id=row['author'],
                     pub_date=row['pub_date']

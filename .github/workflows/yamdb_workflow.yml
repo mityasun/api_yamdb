@@ -1,4 +1,4 @@
-name: api_yamdb workflow
+name: api_yamdb workflow (Flake8 test and push to Docker)
 
 on: [push]
 

@@ -13,6 +13,6 @@ class ValidateUsername:
             match = re.split(pattern, username)
             symbol = ''.join(match)
             raise ValidationError(f'Некорректные символы в username: {symbol}')
-        elif username == 'me':
+        if username == 'me':
             raise ValidationError('Ник "me" нельзя регистрировать!')
         return username

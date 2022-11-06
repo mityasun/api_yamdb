@@ -1,9 +1,10 @@
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from users.models import User
 
 from api_yamdb.settings import LEN_FOR_NAME
-from users.models import User
+
 from .base_models import BaseModelGenreCategory
 from .validators import validate_year
 

@@ -2,9 +2,7 @@ import datetime
 from csv import DictReader
 
 from django.core.management import BaseCommand
-
-from reviews.models import (Category, Genre, Review, Title,
-                            Comment, GenreTitle)
+from reviews.models import Category, Comment, Genre, GenreTitle, Review, Title
 from users.models import User
 
 
@@ -12,19 +10,19 @@ def import_csv_data():
     start_time = datetime.datetime.now()
 
     csv_files = (
-        (User, 'static/data/users.csv'),
-        (Category, 'static/data/category.csv'),
-        (Genre, 'static/data/genre.csv'),
-        (Title, 'static/data/titles.csv'),
-        (GenreTitle, 'static/data/genre_title.csv'),
-        (Review, 'static/data/review.csv'),
-        (Comment, 'static/data/comments.csv')
+        (User, 'reviews/management/data/users.csv'),
+        (Category, 'reviews/management/data/category.csv'),
+        (Genre, 'reviews/management/data/genre.csv'),
+        (Title, 'reviews/management/data/titles.csv'),
+        (GenreTitle, 'reviews/management/data/genre_title.csv'),
+        (Review, 'reviews/management/data/review.csv'),
+        (Comment, 'reviews/management/data/comments.csv')
     )
 
     for model, file in csv_files:
         print(f"Загрузка данных таблицы {file} началась.")
         for row in DictReader(open(file, encoding='utf-8')):
-            if file == 'static/data/users.csv':
+            if file == 'reviews/management/data/users.csv':
                 data = model(
                     id=row['id'],
                     username=row['username'],
@@ -35,15 +33,15 @@ def import_csv_data():
                     last_name=row['last_name']
                 )
                 data.save()
-            elif (file == 'static/data/category.csv'
-                  or file == 'static/data/genre.csv'):
+            elif (file == 'reviews/management/data/category.csv'
+                  or file == 'reviews/management/data/genre.csv'):
                 data = model(
                     id=row['id'],
                     name=row['name'],
                     slug=row['slug']
                 )
                 data.save()
-            elif file == 'static/data/titles.csv':
+            elif file == 'reviews/management/data/titles.csv':
                 data = model(
                     id=row['id'],
                     name=row['name'],
@@ -51,14 +49,14 @@ def import_csv_data():
                     category_id=row['category_id']
                 )
                 data.save()
-            elif file == 'static/data/genre_title.csv':
+            elif file == 'reviews/management/data/genre_title.csv':
                 data = model(
                     id=row['id'],
                     title_id=row['title_id'],
                     genre_id=row['genre_id']
                 )
                 data.save()
-            elif file == 'static/data/review.csv':
+            elif file == 'reviews/management/data/review.csv':
                 data = model(
                     id=row['id'],
                     title_id=row['title_id'],
@@ -68,7 +66,7 @@ def import_csv_data():
                     pub_date=row['pub_date']
                 )
                 data.save()
-            elif file == 'static/data/comments.csv':
+            elif file == 'reviews/management/data/comments.csv':
                 data = model(
                     id=row['id'],
                     review_id=row['review_id'],
@@ -86,7 +84,7 @@ def import_csv_data():
 
 
 class Command(BaseCommand):
-    help = ("Загрузка data из static/data/*.csv."
+    help = ("Загрузка data из reviews/management/data/*.csv."
             "Запуск: python manage.py load_csv_data."
             "Подробнее об импорте в README.md.")
 

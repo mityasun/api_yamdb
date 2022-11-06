@@ -1,5 +1,6 @@
 from django.db import models
-from api_yamdb.settings import LEN_FOR_SLUG, LEN_FOR_NAME
+
+from api_yamdb.settings import LEN_FOR_NAME, LEN_FOR_SLUG
 
 
 class BaseModelGenreCategory(models.Model):
